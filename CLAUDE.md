@@ -63,3 +63,10 @@ public/
 ## Non-Goals
 
 No live trading, no intraday, no shorting, no multiple positions, no database, no auth, no trailing stops, no `between` operator. See spec §2 for full list.
+
+## Active Technologies
+- TypeScript 5, strict mode, Next.js 16 (App Router) + React 19, Tailwind CSS 4, shadcn/ui, lucide-react (icons), Web Speech API (browser-native, zero npm packages) (001-voice-input)
+- N/A (ephemeral speech sessions, no persistence) (001-voice-input)
+
+## Recent Changes
+- 001-voice-input: Added TypeScript 5, strict mode, Next.js 16 (App Router) + React 19, Tailwind CSS 4, shadcn/ui, lucide-react (icons), Web Speech API (browser-native, zero npm packages)

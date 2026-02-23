@@ -25,9 +25,9 @@ import { TradeLog } from '@/components/TradeLog';
 import { PresetGallery } from '@/components/PresetGallery';
 import { EquityCurve } from '@/components/EquityCurve';
 import { AuditPanel } from '@/components/AuditPanel';
-import { LandingHero } from '@/components/LandingHero';
 import { RunHistory } from '@/components/RunHistory';
 import { ComparisonView } from '@/components/ComparisonView';
+import { SlidePanel } from '@/components/SlidePanel';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import {
@@ -142,6 +142,7 @@ export default function Home() {
   const [isComparing, setIsComparing] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [shareLoaded, setShareLoaded] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   // ── Run backtest helper ─────────────────────────────────────────────
   const executeBacktest = useCallback(
@@ -240,6 +241,15 @@ export default function Home() {
     dispatch({ type: 'SET_PHASE', phase: 'confirming' });
   }, []);
 
+  // ── Handle preset from panel (close panel first) ────────────────────
+  const handlePresetFromPanel = useCallback(
+    (ruleSet: StrategyRuleSet) => {
+      setPanelOpen(false);
+      handlePreset(ruleSet);
+    },
+    [handlePreset]
+  );
+
   // ── Handle demo snapshot ──────────────────────────────────────────────
   const handleSnapshot = useCallback(
     async (snapshot: DemoSnapshot) => {
@@ -269,6 +279,15 @@ export default function Home() {
     [executeBacktest, addToHistory]
   );
 
+  // ── Handle snapshot from panel (close panel first) ──────────────────
+  const handleSnapshotFromPanel = useCallback(
+    (snapshot: DemoSnapshot) => {
+      setPanelOpen(false);
+      handleSnapshot(snapshot);
+    },
+    [handleSnapshot]
+  );
+
   // ── Handle back ───────────────────────────────────────────────────────
   const handleBack = useCallback(() => {
     dispatch({ type: 'SET_PHASE', phase: 'input' });
@@ -287,6 +306,15 @@ export default function Home() {
     setIsComparing(false);
     setComparePrompt('');
   }, []);
+
+  // ── Handle restore from panel (close panel first) ───────────────────
+  const handleRestoreFromPanel = useCallback(
+    (result: BacktestResult) => {
+      setPanelOpen(false);
+      handleRestore(result);
+    },
+    [handleRestore]
+  );
 
   // ── Handle asset swap ──────────────────────────────────────────────
   const handleAssetSwap = useCallback(
@@ -427,7 +455,7 @@ export default function Home() {
     <ErrorBoundary>
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
       {/* Header */}
-      <header className="border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <button
             onClick={handleBack}
@@ -440,19 +468,39 @@ export default function Home() {
               Crypto Strategy Backtester
             </span>
           </button>
-          {state.phase !== 'input' && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="text-slate-400 hover:text-slate-200"
-            >
-              <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-              New Strategy
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Presets button (visible on input phase) */}
+            {state.phase === 'input' && (
+              <button
+                onClick={() => setPanelOpen(true)}
+                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300
+                  px-3 py-1.5 rounded-lg hover:bg-slate-800/50 transition-all"
+              >
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                </svg>
+                <span className="hidden sm:inline">Presets</span>
+                {state.runHistory.length > 0 && (
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-medium px-1">
+                    {state.runHistory.length}
+                  </span>
+                )}
+              </button>
+            )}
+            {state.phase !== 'input' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="text-slate-400 hover:text-slate-200"
+              >
+                <svg className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                New Strategy
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -469,7 +517,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     dispatch({ type: 'CLEAR_ERROR' });
-                    document.getElementById('preset-gallery')?.scrollIntoView({ behavior: 'smooth' });
+                    setPanelOpen(true);
                   }}
                   className="mt-1.5 text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
                 >
@@ -485,33 +533,72 @@ export default function Home() {
           </div>
         )}
 
-        {/* Phase: Input */}
+        {/* Phase: Input ────────────────────────────────────────────── */}
         {state.phase === 'input' && (
-          <div>
-            <LandingHero />
-            <div className="mt-8 flex flex-col lg:flex-row gap-6">
-              <div className="lg:w-[380px] shrink-0 space-y-6">
-                <div>
-                  <h2 className="text-base font-semibold text-slate-200 mb-1">Define Your Strategy</h2>
-                  <p className="text-sm text-slate-500 mb-4">
-                    Describe a trading strategy in plain English, or pick a preset below.
-                  </p>
-                  <StrategyInput
-                    onParse={handleParse}
-                    config={state.config}
-                    onConfigChange={handleConfigChange}
-                    isParsing={false}
-                  />
-                </div>
-                {state.runHistory.length > 0 && (
-                  <RunHistory history={state.runHistory} onRestore={handleRestore} />
-                )}
+          <>
+            {/* Centered hero layout */}
+            <div className="flex flex-col items-center pt-[8vh] sm:pt-[14vh] pb-12">
+              {/* Background glow */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/[0.04] rounded-full blur-[120px] pointer-events-none" />
+
+              {/* Tagline */}
+              <div className="relative text-center mb-8 space-y-3">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-100 leading-snug">
+                  Describe a trading strategy.
+                  <br />
+                  <span className="text-indigo-400">
+                    See if it would&apos;ve worked.
+                  </span>
+                </h2>
+                <p className="text-sm text-slate-500 max-w-md mx-auto">
+                  AI-powered backtesting for 8 crypto assets — no code required.
+                </p>
               </div>
-              <div className="flex-1 min-w-0" id="preset-gallery">
-                <PresetGallery onSelectPreset={handlePreset} onSelectSnapshot={handleSnapshot} />
-              </div>
+
+              {/* Strategy Input (command bar) */}
+              <StrategyInput
+                onParse={handleParse}
+                config={state.config}
+                onConfigChange={handleConfigChange}
+                isParsing={false}
+              />
+
+              {/* Browse presets link */}
+              <button
+                onClick={() => setPanelOpen(true)}
+                className="mt-8 text-[13px] text-slate-600 hover:text-indigo-400 transition-colors
+                  flex items-center gap-1.5 group"
+              >
+                <span>Or try a preset strategy</span>
+                <svg
+                  className="size-3.5 transition-transform group-hover:translate-x-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
             </div>
-          </div>
+
+            {/* Slide panel for presets & history */}
+            <SlidePanel
+              isOpen={panelOpen}
+              onClose={() => setPanelOpen(false)}
+              title="Strategies & History"
+            >
+              <PresetGallery
+                onSelectPreset={handlePresetFromPanel}
+                onSelectSnapshot={handleSnapshotFromPanel}
+              />
+              {state.runHistory.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-slate-800/60">
+                  <RunHistory history={state.runHistory} onRestore={handleRestoreFromPanel} />
+                </div>
+              )}
+            </SlidePanel>
+          </>
         )}
 
         {/* Phase: Parsing */}
