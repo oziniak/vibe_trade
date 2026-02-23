@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Mic } from 'lucide-react';
 import type { AssetSymbol } from '@/types/strategy';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 const ASSETS: AssetSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'AVAX'];
 
@@ -46,6 +48,32 @@ export function StrategyInput({
   isParsing = false,
 }: StrategyInputProps) {
   const [prompt, setPrompt] = useState('');
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
+  // --- Voice input hook ---
+  const {
+    isSupported,
+    isListening,
+    interimTranscript,
+    error: speechError,
+    startListening,
+    stopListening,
+  } = useSpeechRecognition({
+    silenceTimeoutMs: 5000,
+    onFinalTranscript: (text) =>
+      setPrompt((prev) => prev + (prev ? ' ' : '') + text),
+  });
+
+  // Sync voice errors with auto-dismiss
+  useEffect(() => {
+    if (!speechError) {
+      setVoiceError(null);
+      return;
+    }
+    setVoiceError(speechError);
+    const timer = setTimeout(() => setVoiceError(null), 5000);
+    return () => clearTimeout(timer);
+  }, [speechError]);
 
   // --- Validation ---
   const validationErrors: string[] = [];
@@ -77,6 +105,12 @@ export function StrategyInput({
     }
   };
 
+  // Compute displayed textarea value: show interim transcript while listening
+  const displayValue =
+    isListening && interimTranscript
+      ? prompt + (prompt ? ' ' : '') + interimTranscript
+      : prompt;
+
   return (
     <div className="flex flex-col gap-5">
       {/* Strategy prompt */}
@@ -84,15 +118,57 @@ export function StrategyInput({
         <Label htmlFor="strategy-prompt" className="text-sm font-medium text-slate-300">
           Describe your strategy
         </Label>
-        <Textarea
-          id="strategy-prompt"
-          placeholder="e.g., Buy when RSI drops below 30, sell when it rises above 70"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={3}
-          className="resize-none bg-slate-900/50 border-slate-700 text-slate-100 placeholder:text-slate-500 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500"
-        />
+
+        {/* Textarea with mic button overlay */}
+        <div className="relative">
+          <Textarea
+            id="strategy-prompt"
+            placeholder="e.g., Buy when RSI drops below 30, sell when it rises above 70"
+            value={displayValue}
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={3}
+            className={`resize-none bg-slate-900/50 border-slate-700 text-slate-100 placeholder:text-slate-500 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500 ${isSupported ? 'pr-11' : ''}`}
+          />
+
+          {isSupported && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={isListening ? stopListening : startListening}
+              aria-label={isListening ? 'Stop dictation' : 'Start voice input'}
+              className={`absolute right-2 top-2 rounded-full transition-all duration-150 ${
+                isListening
+                  ? 'text-red-400 bg-red-500/10 ring-2 ring-red-500/30 animate-pulse hover:bg-red-500/20 hover:text-red-300'
+                  : 'text-slate-500 hover:text-slate-200 hover:bg-slate-700/50'
+              }`}
+            >
+              <Mic className="size-3.5" />
+            </Button>
+          )}
+        </div>
+
+        {/* Voice error notification */}
+        {voiceError && (
+          <div className="rounded-lg border border-red-500/20 bg-red-500/[0.07] px-3 py-2 flex items-start gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+            <svg
+              className="size-3.5 text-red-400 shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"
+              />
+            </svg>
+            <p className="text-xs text-red-300/90 leading-relaxed">{voiceError}</p>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-1.5">
           {EXAMPLE_PROMPTS.map((example) => (
             <button
