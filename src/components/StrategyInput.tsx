@@ -135,12 +135,21 @@ export function StrategyInput({
         {isSupported && (
           <button
             type="button"
-            onClick={isListening ? stopListening : startListening}
+            onClick={() => {
+                if (isListening) {
+                  if (interimTranscript) {
+                    setPrompt((prev) => prev + (prev ? ' ' : '') + interimTranscript);
+                  }
+                  stopListening();
+                } else {
+                  startListening();
+                }
+              }}
             aria-label={isListening ? 'Stop dictation' : 'Start voice input'}
             className={`absolute right-3 top-3 p-1.5 rounded-lg transition-all duration-150 ${
               isListening
                 ? 'text-red-400 bg-red-500/10 ring-2 ring-red-500/30 animate-pulse'
-                : 'text-vt-line hover:text-slate-300 hover:bg-vt-bg3/60'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-vt-bg3/60'
             }`}
           >
             <Mic className="size-4" />
@@ -328,7 +337,7 @@ export function StrategyInput({
                 className="w-full bg-transparent text-sm text-slate-200 border-none p-0 outline-none
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-vt-line ml-0.5 shrink-0">bps</span>
+              <span className="text-[10px] text-slate-400 ml-0.5 shrink-0">bps</span>
             </div>
           </div>
 
@@ -352,7 +361,7 @@ export function StrategyInput({
                 className="w-full bg-transparent text-sm text-slate-200 border-none p-0 outline-none
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-vt-line ml-0.5 shrink-0">bps</span>
+              <span className="text-[10px] text-slate-400 ml-0.5 shrink-0">bps</span>
             </div>
           </div>
         </div>

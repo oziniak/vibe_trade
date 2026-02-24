@@ -1,6 +1,7 @@
 'use client';
 
 import { useReducer, useCallback, useEffect, useState } from 'react';
+import { Link2 } from 'lucide-react';
 import type { AssetSymbol, StrategyRuleSet } from '@/types/strategy';
 import type {
   AppState,
@@ -494,7 +495,7 @@ export default function Home() {
             {/* Presets button (visible on input phase) */}
             {state.phase === 'input' && (
               <button
-                onClick={() => setPanelOpen(true)}
+                onClick={() => setPanelOpen(!panelOpen)}
                 className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-vt-dim
                   px-3 py-1.5 rounded-lg hover:bg-vt/[0.05] transition-all"
               >
@@ -766,9 +767,7 @@ export default function Home() {
                   }
                 }}
               >
-                <svg className="h-3.5 w-3.5 mr-1.5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.54a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.34 8.374" />
-                </svg>
+                <Link2 className="h-3.5 w-3.5 mr-1.5" />
                 {shareCopied ? 'Copied!' : 'Copy Share Link'}
               </Button>
             </div>
@@ -854,7 +853,7 @@ export default function Home() {
             {!comparisonResult && (
               <div className="rounded-lg border border-vt-line/30 bg-vt-bg3/10 p-4">
                 <h3 className="text-sm font-medium text-slate-400 mb-3">Compare with another strategy</h3>
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 items-center">
                   <input
                     type="text"
                     value={comparePrompt}
