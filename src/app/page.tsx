@@ -55,6 +55,7 @@ type AppAction =
   | { type: 'SET_RULES'; rules: StrategyRuleSet }
   | { type: 'SET_RESULTS'; results: BacktestResult }
   | { type: 'SET_COMPARISON'; results: BacktestResult }
+  | { type: 'CLEAR_COMPARISON' }
   | { type: 'SET_ERROR'; error: string }
   | { type: 'SET_PROMPT'; prompt: string }
   | { type: 'CLEAR_ERROR' }
@@ -89,9 +90,11 @@ function appReducer(state: AppState, action: AppAction): AppState {
     case 'SET_RULES':
       return { ...state, currentRules: action.rules };
     case 'SET_RESULTS':
-      return { ...state, results: [action.results, state.results[1]] };
+      return { ...state, results: [action.results, null] };
     case 'SET_COMPARISON':
       return { ...state, results: [state.results[0], action.results], phase: 'comparing' };
+    case 'CLEAR_COMPARISON':
+      return { ...state, results: [state.results[0], null], phase: 'results' };
     case 'SET_ERROR':
       return { ...state, error: action.error, phase: state.phase === 'parsing' ? 'input' : state.phase };
     case 'SET_PROMPT':
@@ -304,6 +307,7 @@ export default function Home() {
 
   // ── Handle back ───────────────────────────────────────────────────────
   const handleBack = useCallback(() => {
+    dispatch({ type: 'CLEAR_COMPARISON' });
     dispatch({ type: 'SET_PHASE', phase: 'input' });
     setIsComparing(false);
     setComparePrompt('');
@@ -780,7 +784,7 @@ export default function Home() {
               <div className="space-y-2">
                 <div className="flex items-center justify-end">
                   <button
-                    onClick={() => dispatch({ type: 'SET_PHASE', phase: 'results' })}
+                    onClick={() => dispatch({ type: 'CLEAR_COMPARISON' })}
                     className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
                   >
                     Remove Comparison
