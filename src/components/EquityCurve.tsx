@@ -15,6 +15,9 @@ import {
 } from 'recharts';
 import type { EquityPoint } from '@/types/results';
 import { formatCurrency, formatPercent } from '@/lib/utils';
+import { useTheme } from '@/lib/theme';
+
+const BENCHMARK_COLOR = '#94a3b8'; // neutral slate for Buy & Hold
 
 function useIsMobile(breakpoint = 640) {
   const [isMobile, setIsMobile] = useState(false);
@@ -46,6 +49,7 @@ interface CustomTooltipProps {
   active?: boolean;
   payload?: TooltipPayloadEntry[];
   label?: string;
+  accentColor?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -81,7 +85,7 @@ function computeTickInterval(dataLength: number): number {
 // Custom Tooltip
 // ---------------------------------------------------------------------------
 
-function EquityTooltip({ active, payload, label }: CustomTooltipProps) {
+function EquityTooltip({ active, payload, label, accentColor }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0 || !label) return null;
 
   const equityEntry = payload.find((p) => p.dataKey === 'equity');
@@ -98,7 +102,7 @@ function EquityTooltip({ active, payload, label }: CustomTooltipProps) {
           <div className="flex items-center gap-2 text-xs">
             <span
               className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: '#22c55e' }}
+              style={{ backgroundColor: accentColor }}
             />
             <span className="text-slate-400">Strategy:</span>
             <span className="font-medium text-slate-200">
@@ -110,7 +114,7 @@ function EquityTooltip({ active, payload, label }: CustomTooltipProps) {
           <div className="flex items-center gap-2 text-xs">
             <span
               className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: '#6366f1' }}
+              style={{ backgroundColor: BENCHMARK_COLOR }}
             />
             <span className="text-slate-400">Buy &amp; Hold:</span>
             <span className="font-medium text-slate-200">
@@ -165,20 +169,20 @@ function DrawdownTooltip({ active, payload, label }: CustomTooltipProps) {
 // Custom Legend
 // ---------------------------------------------------------------------------
 
-function EquityLegend() {
+function EquityLegend({ accentColor }: { accentColor?: string }) {
   return (
     <div className="flex items-center justify-center gap-5 pt-1 pb-2">
       <div className="flex items-center gap-1.5 text-xs">
         <span
           className="inline-block h-2.5 w-2.5 rounded-sm"
-          style={{ backgroundColor: '#22c55e' }}
+          style={{ backgroundColor: accentColor }}
         />
         <span className="text-slate-400">Strategy</span>
       </div>
       <div className="flex items-center gap-1.5 text-xs">
         <span
           className="inline-block h-2.5 w-2.5 rounded-sm"
-          style={{ backgroundColor: '#6366f1' }}
+          style={{ backgroundColor: BENCHMARK_COLOR }}
         />
         <span className="text-slate-400">Buy &amp; Hold</span>
       </div>
@@ -192,11 +196,12 @@ function EquityLegend() {
 
 export function EquityCurve({ equityCurve }: EquityCurveProps) {
   const isMobile = useIsMobile();
+  const { accentHex } = useTheme();
 
   // ── Empty state ──────────────────────────────────────────────────────
   if (!equityCurve || equityCurve.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-slate-700/50 bg-slate-900/50">
+      <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-vt-line/50 bg-vt-bg2/50">
         <p className="text-sm text-slate-500">No equity data available</p>
       </div>
     );
@@ -217,7 +222,7 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
   return (
     <div className="w-full space-y-0">
       {/* ── Equity Chart (top, 70%) ─────────────────────────────────────── */}
-      <div className="rounded-t-lg border border-slate-700/50 overflow-hidden">
+      <div className="rounded-t-lg border border-vt-line/50 overflow-hidden">
         <ResponsiveContainer width="100%" height={equityHeight}>
           <ComposedChart
             data={equityCurve}
@@ -226,8 +231,8 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
           >
             <defs>
               <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity={0} />
+                <stop offset="0%" stopColor={accentHex} stopOpacity={0.3} />
+                <stop offset="100%" stopColor={accentHex} stopOpacity={0} />
               </linearGradient>
             </defs>
 
@@ -257,24 +262,24 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
             />
 
             <Tooltip
-              content={<EquityTooltip />}
+              content={<EquityTooltip accentColor={accentHex} />}
               cursor={{ stroke: '#475569', strokeDasharray: '4 4' }}
             />
 
-            <Legend content={<EquityLegend />} />
+            <Legend content={<EquityLegend accentColor={accentHex} />} />
 
             {/* Strategy equity - area with gradient fill */}
             <Area
               type="monotone"
               dataKey="equity"
               name="Strategy"
-              stroke="#22c55e"
+              stroke={accentHex}
               strokeWidth={2}
               fill="url(#equityGradient)"
               dot={false}
               activeDot={{
                 r: 4,
-                fill: '#22c55e',
+                fill: accentHex,
                 stroke: '#0f172a',
                 strokeWidth: 2,
               }}
@@ -285,13 +290,13 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
               type="monotone"
               dataKey="benchmarkEquity"
               name="Buy & Hold"
-              stroke="#6366f1"
+              stroke={BENCHMARK_COLOR}
               strokeWidth={1.5}
               strokeDasharray="6 3"
               dot={false}
               activeDot={{
                 r: 4,
-                fill: '#6366f1',
+                fill: BENCHMARK_COLOR,
                 stroke: '#0f172a',
                 strokeWidth: 2,
               }}
@@ -301,7 +306,7 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
       </div>
 
       {/* ── Drawdown Chart (bottom, 30%) ────────────────────────────────── */}
-      <div className="rounded-b-lg border border-t-0 border-slate-700/50 overflow-hidden">
+      <div className="rounded-b-lg border border-t-0 border-vt-line/50 overflow-hidden">
         <ResponsiveContainer width="100%" height={drawdownHeight}>
           <ComposedChart
             data={equityCurve}

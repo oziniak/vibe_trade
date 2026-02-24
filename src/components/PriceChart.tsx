@@ -13,7 +13,11 @@ interface PriceChartProps {
 // Color palettes for indicator overlays (dark mode optimized)
 const SMA_COLORS = ['#f59e0b', '#8b5cf6', '#06b6d4', '#10b981', '#f97316', '#ec4899'];
 const EMA_COLORS = ['#fbbf24', '#a78bfa', '#22d3ee', '#34d399', '#fb923c', '#f472b6'];
-const BB_COLOR = '#6366f1';
+// BB_COLOR is read dynamically from CSS --vt variable at render time
+function getBBColor(): string {
+  if (typeof document === 'undefined') return '#22c55e';
+  return getComputedStyle(document.documentElement).getPropertyValue('--vt').trim() || '#22c55e';
+}
 
 /** Classify an indicator key into a renderable type */
 function classifyIndicator(key: string): 'sma' | 'ema' | 'bb_upper' | 'bb_middle' | 'bb_lower' | 'skip' {
@@ -173,17 +177,17 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
               lineWidth = 1;
               break;
             case 'bb_upper':
-              color = BB_COLOR;
+              color = getBBColor();
               lineStyle = 2; // Dashed
               lineWidth = 1;
               break;
             case 'bb_lower':
-              color = BB_COLOR;
+              color = getBBColor();
               lineStyle = 2; // Dashed
               lineWidth = 1;
               break;
             case 'bb_middle':
-              color = BB_COLOR;
+              color = getBBColor();
               lineStyle = 0; // Solid
               lineWidth = 1;
               break;
@@ -253,7 +257,7 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
 
   if (candles.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-slate-700/50 bg-slate-900/50">
+      <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-vt-line/50 bg-vt-bg2/50">
         <p className="text-sm text-slate-500">No candle data available</p>
       </div>
     );
@@ -262,7 +266,7 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
   return (
     <div className="relative">
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-slate-900/80 rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center z-10 bg-vt-bg2/80 rounded-lg">
           <div className="flex items-center gap-2 text-slate-400">
             <svg
               className="animate-spin h-5 w-5"
@@ -289,7 +293,7 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
       )}
       <div
         ref={containerRef}
-        className="w-full rounded-lg overflow-hidden border border-slate-700/50"
+        className="w-full rounded-lg overflow-hidden border border-vt-line/50"
       />
     </div>
   );

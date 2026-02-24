@@ -135,7 +135,7 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
   return (
     <div className="space-y-4">
       {/* Benchmark comparison bar */}
-      <div className="flex items-center gap-4 rounded-lg border border-slate-700/50 bg-slate-800/30 p-3">
+      <div className="flex items-center gap-4 rounded-lg border border-vt-line/50 bg-vt-bg3/30 p-3">
         <div className="flex-1">
           <p className="text-xs text-slate-500 uppercase tracking-wider">Strategy Return</p>
           <p className={`text-lg font-semibold tabular-nums ${metrics.totalReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -160,7 +160,7 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
           return (
             <Card
               key={def.key}
-              className="bg-slate-800/30 border-slate-700/50 py-2.5 gap-0"
+              className="bg-vt-bg3/30 border-vt-line/50 py-2.5 gap-0"
             >
               <CardContent className="px-3 py-0">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider leading-tight">

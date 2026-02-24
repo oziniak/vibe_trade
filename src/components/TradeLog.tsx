@@ -68,18 +68,18 @@ export function TradeLog({ trades }: TradeLogProps) {
 
   if (trades.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-slate-700/50 bg-slate-900/50">
+      <div className="flex items-center justify-center h-32 rounded-lg border border-vt-line/50 bg-vt-bg2/50">
         <p className="text-sm text-slate-500">No trades executed</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-slate-700/50 bg-slate-900/30 overflow-hidden">
+    <div className="rounded-lg border border-vt-line/50 bg-vt-bg2/30 overflow-hidden">
       <div className="max-h-[400px] overflow-y-auto overflow-x-auto">
         <Table className="min-w-[700px]">
-          <TableHeader className="sticky top-0 bg-slate-800/90 backdrop-blur-sm z-10">
-            <TableRow className="border-b-slate-700/50 hover:bg-transparent">
+          <TableHeader className="sticky top-0 bg-vt-bg3/90 backdrop-blur-sm z-10">
+            <TableRow className="border-b-vt-line/50 hover:bg-transparent">
               <TableHead
                 className="cursor-pointer select-none text-slate-400 hover:text-slate-200"
                 onClick={() => handleSort('id')}
@@ -133,7 +133,7 @@ export function TradeLog({ trades }: TradeLogProps) {
               return (
                 <TableRow
                   key={trade.id}
-                  className="border-b-slate-700/30 hover:bg-slate-800/30 even:bg-slate-800/15"
+                  className="border-b-vt-line/30 hover:bg-vt-bg3/30 even:bg-vt-bg3/15"
                 >
                   <TableCell className="text-slate-500 text-xs tabular-nums">
                     {trade.id}
@@ -172,7 +172,7 @@ export function TradeLog({ trades }: TradeLogProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="border-t border-slate-700/50 px-3 py-2 bg-slate-800/30">
+      <div className="border-t border-vt-line/50 px-3 py-2 bg-vt-bg3/30">
         <p className="text-xs text-slate-500">
           {trades.length} trade{trades.length !== 1 ? 's' : ''} total.
           Click column headers to sort.

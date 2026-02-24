@@ -44,9 +44,9 @@ export function AuditPanel({ audit }: AuditPanelProps) {
       <CollapsibleTrigger
         className={cn(
           'flex w-full items-center justify-between',
-          'rounded-lg border border-slate-700/50 bg-slate-800/30',
+          'rounded-lg border border-vt-line/50 bg-vt-bg3/30',
           'px-4 py-3 text-left',
-          'transition-colors hover:bg-slate-800/50',
+          'transition-colors hover:bg-vt-bg3/50',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900',
         )}
       >
@@ -65,8 +65,8 @@ export function AuditPanel({ audit }: AuditPanelProps) {
       </CollapsibleTrigger>
 
       <CollapsibleContent>
-        <div className="mt-1 rounded-lg border border-slate-700/50 bg-slate-900/30 overflow-hidden">
-          <div className="divide-y divide-slate-700/30">
+        <div className="mt-1 rounded-lg border border-vt-line/50 bg-vt-bg2/30 overflow-hidden">
+          <div className="divide-y divide-vt-line/30">
             {rows.map((row) => (
               <div
                 key={row.label}

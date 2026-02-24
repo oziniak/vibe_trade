@@ -20,6 +20,7 @@ import {
   formatNumber,
   formatCurrency,
 } from '@/lib/utils';
+import { useTheme } from '@/lib/theme';
 
 function useIsMobile(breakpoint = 640) {
   const [isMobile, setIsMobile] = useState(false);
@@ -74,8 +75,7 @@ interface MetricComparisonDef {
 // Constants
 // ---------------------------------------------------------------------------
 
-const COLOR_A = '#6366f1'; // indigo
-const COLOR_B = '#f59e0b'; // amber
+// COLOR_A and COLOR_B are now derived from theme in the component
 const COLOR_BENCHMARK = '#475569'; // slate
 
 const METRIC_COMPARISON_DEFS: MetricComparisonDef[] = [
@@ -280,7 +280,7 @@ function getDeltaDisplay(
 // Custom Tooltip
 // ---------------------------------------------------------------------------
 
-function ComparisonTooltip({ active, payload, label }: CustomTooltipProps) {
+function ComparisonTooltip({ active, payload, label, colorA, colorB }: CustomTooltipProps & { colorA?: string; colorB?: string }) {
   if (!active || !payload || payload.length === 0 || !label) return null;
 
   const equityAEntry = payload.find((p) => p.dataKey === 'equityA');
@@ -297,7 +297,7 @@ function ComparisonTooltip({ active, payload, label }: CustomTooltipProps) {
           <div className="flex items-center gap-2 text-xs">
             <span
               className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: COLOR_A }}
+              style={{ backgroundColor: colorA }}
             />
             <span className="text-slate-400">Strategy A:</span>
             <span className="font-medium text-slate-200">
@@ -309,7 +309,7 @@ function ComparisonTooltip({ active, payload, label }: CustomTooltipProps) {
           <div className="flex items-center gap-2 text-xs">
             <span
               className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: COLOR_B }}
+              style={{ backgroundColor: colorB }}
             />
             <span className="text-slate-400">Strategy B:</span>
             <span className="font-medium text-slate-200">
@@ -341,29 +341,33 @@ function ComparisonTooltip({ active, payload, label }: CustomTooltipProps) {
 function ComparisonLegend({
   nameA,
   nameB,
+  colorA,
+  colorB,
 }: {
   nameA: string;
   nameB: string;
+  colorA?: string;
+  colorB?: string;
 }) {
   return (
     <div className="flex items-center justify-center gap-5 pt-1 pb-2">
       <div className="flex items-center gap-1.5 text-xs">
         <span
           className="inline-block h-2.5 w-2.5 rounded-sm"
-          style={{ backgroundColor: COLOR_A }}
+          style={{ backgroundColor: colorA }}
         />
         <span className="text-slate-400">{nameA}</span>
       </div>
       <div className="flex items-center gap-1.5 text-xs">
         <span
           className="inline-block h-2.5 w-2.5 rounded-sm"
-          style={{ backgroundColor: COLOR_B }}
+          style={{ backgroundColor: colorB }}
         />
         <span className="text-slate-400">{nameB}</span>
       </div>
       <div className="flex items-center gap-1.5 text-xs">
         <span
-          className="inline-block h-2.5 w-2.5 rounded-sm border border-slate-500"
+          className="inline-block h-2.5 w-2.5 rounded-sm border border-vt-line"
           style={{ backgroundColor: 'transparent' }}
         />
         <span className="text-slate-400">Buy &amp; Hold</span>
@@ -380,10 +384,14 @@ function OverlaidEquityChart({
   data,
   nameA,
   nameB,
+  colorA,
+  colorB,
 }: {
   data: MergedEquityPoint[];
   nameA: string;
   nameB: string;
+  colorA: string;
+  colorB: string;
 }) {
   const isMobile = useIsMobile();
   const tickInterval = computeTickInterval(data.length);
@@ -391,7 +399,7 @@ function OverlaidEquityChart({
   const yAxisWidth = isMobile ? 60 : 90;
 
   return (
-    <div className="rounded-lg border border-slate-700/50 bg-slate-900/50 overflow-hidden">
+    <div className="rounded-lg border border-vt-line/50 bg-vt-bg2/50 overflow-hidden">
       <ResponsiveContainer width="100%" height={chartHeight}>
         <ComposedChart
           data={data}
@@ -399,12 +407,12 @@ function OverlaidEquityChart({
         >
           <defs>
             <linearGradient id="compEquityGradientA" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={COLOR_A} stopOpacity={0.15} />
-              <stop offset="100%" stopColor={COLOR_A} stopOpacity={0} />
+              <stop offset="0%" stopColor={colorA} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={colorA} stopOpacity={0} />
             </linearGradient>
             <linearGradient id="compEquityGradientB" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={COLOR_B} stopOpacity={0.15} />
-              <stop offset="100%" stopColor={COLOR_B} stopOpacity={0} />
+              <stop offset="0%" stopColor={colorB} stopOpacity={0.15} />
+              <stop offset="100%" stopColor={colorB} stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -434,25 +442,25 @@ function OverlaidEquityChart({
           />
 
           <Tooltip
-            content={<ComparisonTooltip />}
+            content={<ComparisonTooltip colorA={colorA} colorB={colorB} />}
             cursor={{ stroke: '#475569', strokeDasharray: '4 4' }}
           />
 
-          <Legend content={<ComparisonLegend nameA={nameA} nameB={nameB} />} />
+          <Legend content={<ComparisonLegend nameA={nameA} nameB={nameB} colorA={colorA} colorB={colorB} />} />
 
           {/* Strategy A equity */}
           <Area
             type="monotone"
             dataKey="equityA"
             name={nameA}
-            stroke={COLOR_A}
+            stroke={colorA}
             strokeWidth={2}
             fill="url(#compEquityGradientA)"
             dot={false}
             connectNulls
             activeDot={{
               r: 4,
-              fill: COLOR_A,
+              fill: colorA,
               stroke: '#0f172a',
               strokeWidth: 2,
             }}
@@ -463,14 +471,14 @@ function OverlaidEquityChart({
             type="monotone"
             dataKey="equityB"
             name={nameB}
-            stroke={COLOR_B}
+            stroke={colorB}
             strokeWidth={2}
             fill="url(#compEquityGradientB)"
             dot={false}
             connectNulls
             activeDot={{
               r: 4,
-              fill: COLOR_B,
+              fill: colorB,
               stroke: '#0f172a',
               strokeWidth: 2,
             }}
@@ -508,24 +516,28 @@ function MetricsComparisonTable({
   metricsB,
   nameA,
   nameB,
+  colorA,
+  colorB,
 }: {
   metricsA: PerformanceMetrics;
   metricsB: PerformanceMetrics;
   nameA: string;
   nameB: string;
+  colorA: string;
+  colorB: string;
 }) {
   return (
-    <div className="rounded-lg border border-slate-700/50 bg-slate-900/50 overflow-x-auto">
+    <div className="rounded-lg border border-vt-line/50 bg-vt-bg2/50 overflow-x-auto">
       <div className="min-w-[540px]">
       {/* Table header */}
-      <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-4 px-4 py-2.5 border-b border-slate-700/50 bg-slate-800/30">
+      <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-4 px-4 py-2.5 border-b border-vt-line/50 bg-vt-bg3/30">
         <div className="text-xs font-medium text-slate-500 uppercase tracking-wider">
           Metric
         </div>
-        <div className="text-xs font-medium uppercase tracking-wider text-right min-w-[90px]" style={{ color: COLOR_A }}>
+        <div className="text-xs font-medium uppercase tracking-wider text-right min-w-[90px]" style={{ color: colorA }}>
           {nameA}
         </div>
-        <div className="text-xs font-medium uppercase tracking-wider text-right min-w-[90px]" style={{ color: COLOR_B }}>
+        <div className="text-xs font-medium uppercase tracking-wider text-right min-w-[90px]" style={{ color: colorB }}>
           {nameB}
         </div>
         <div className="text-xs font-medium text-slate-500 uppercase tracking-wider text-right min-w-[90px]">
@@ -537,7 +549,7 @@ function MetricsComparisonTable({
       </div>
 
       {/* Table body */}
-      <div className="divide-y divide-slate-800/50">
+      <div className="divide-y divide-vt-line/50">
         {METRIC_COMPARISON_DEFS.map((def) => {
           const valueA = metricsA[def.key];
           const valueB = metricsB[def.key];
@@ -550,7 +562,7 @@ function MetricsComparisonTable({
           return (
             <div
               key={def.key}
-              className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-4 px-4 py-2 hover:bg-slate-800/20 transition-colors"
+              className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-x-4 px-4 py-2 hover:bg-vt-bg3/20 transition-colors"
             >
               <div className="text-sm text-slate-400">{def.label}</div>
               <div className="text-sm font-medium text-slate-200 text-right min-w-[90px] tabular-nums">
@@ -579,6 +591,7 @@ function MetricsComparisonTable({
 // ---------------------------------------------------------------------------
 
 export function ComparisonView({ resultA, resultB }: ComparisonViewProps) {
+  const { accentHex, secondaryHex } = useTheme();
   const nameA = resultA.config.rules.name || 'Strategy A';
   const nameB = resultB.config.rules.name || 'Strategy B';
 
@@ -594,7 +607,7 @@ export function ComparisonView({ resultA, resultB }: ComparisonViewProps) {
         <div className="flex items-center gap-2">
           <span
             className="inline-block h-3 w-3 rounded-sm"
-            style={{ backgroundColor: COLOR_A }}
+            style={{ backgroundColor: accentHex }}
           />
           <span className="text-sm font-medium text-slate-300">{nameA}</span>
         </div>
@@ -602,7 +615,7 @@ export function ComparisonView({ resultA, resultB }: ComparisonViewProps) {
         <div className="flex items-center gap-2">
           <span
             className="inline-block h-3 w-3 rounded-sm"
-            style={{ backgroundColor: COLOR_B }}
+            style={{ backgroundColor: secondaryHex }}
           />
           <span className="text-sm font-medium text-slate-300">{nameB}</span>
         </div>
@@ -613,7 +626,7 @@ export function ComparisonView({ resultA, resultB }: ComparisonViewProps) {
         <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">
           Overlaid Equity Curves
         </h3>
-        <OverlaidEquityChart data={mergedData} nameA={nameA} nameB={nameB} />
+        <OverlaidEquityChart data={mergedData} nameA={nameA} nameB={nameB} colorA={accentHex} colorB={secondaryHex} />
       </div>
 
       {/* Side-by-Side Metrics */}
@@ -626,6 +639,8 @@ export function ComparisonView({ resultA, resultB }: ComparisonViewProps) {
           metricsB={resultB.metrics}
           nameA={nameA}
           nameB={nameB}
+          colorA={accentHex}
+          colorB={secondaryHex}
         />
       </div>
     </div>

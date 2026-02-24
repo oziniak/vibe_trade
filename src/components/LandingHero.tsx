@@ -9,7 +9,7 @@ const steps = [
     description: 'Type your trading idea in plain English',
     icon: (
       <svg
-        className="size-5 text-indigo-400"
+        className="size-5 text-vt-dim"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth="1.5"
@@ -29,7 +29,7 @@ const steps = [
     description: 'AI converts it into validated trading rules',
     icon: (
       <svg
-        className="size-5 text-indigo-400"
+        className="size-5 text-vt-dim"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth="1.5"
@@ -49,7 +49,7 @@ const steps = [
     description: 'See charts, metrics, and trade logs',
     icon: (
       <svg
-        className="size-5 text-indigo-400"
+        className="size-5 text-vt-dim"
         fill="none"
         viewBox="0 0 24 24"
         strokeWidth="1.5"
@@ -70,7 +70,7 @@ export function LandingHero() {
     <section className="relative overflow-hidden">
       {/* Subtle background gradient accent */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/[0.07] rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-vt/[0.07] rounded-full blur-3xl" />
       </div>
 
       <div className="py-12 sm:py-16 space-y-10">
@@ -79,7 +79,7 @@ export function LandingHero() {
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-100 leading-snug">
             Describe a trading strategy in plain English.
             <br />
-            <span className="text-indigo-400">
+            <span className="text-vt-dim">
               See if it would&apos;ve made money.
             </span>
           </h2>
@@ -95,17 +95,17 @@ export function LandingHero() {
             <div
               key={step.number}
               className={cn(
-                'relative rounded-lg border border-slate-800/80 bg-slate-900/60 p-4',
-                'transition-colors hover:border-slate-700/80 hover:bg-slate-800/40'
+                'relative rounded-lg border border-vt-line/80 bg-vt-bg2/60 p-4',
+                'transition-colors hover:border-vt-line/80 hover:bg-vt-bg3/40'
               )}
             >
               {/* Connector line between steps (hidden on mobile) */}
               {i < steps.length - 1 && (
-                <div className="absolute top-1/2 -right-2 hidden sm:block w-4 h-px bg-slate-700/60" />
+                <div className="absolute top-1/2 -right-2 hidden sm:block w-4 h-px bg-vt-line/60" />
               )}
 
               <div className="flex items-start gap-3">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-indigo-500/10 border border-indigo-500/20">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-vt/10 border border-vt/20">
                   {step.icon}
                 </div>
                 <div className="min-w-0">

@@ -108,9 +108,9 @@ export function StrategyInput({
     <div className="w-full max-w-[680px] mx-auto space-y-4">
       {/* ── Command Bar ────────────────────────────────────────────── */}
       <div
-        className="relative rounded-2xl border border-slate-700/40 bg-slate-900/50
-          shadow-[0_0_80px_-20px_rgba(99,102,241,0.06)]
-          focus-within:border-indigo-500/30 focus-within:shadow-[0_0_80px_-15px_rgba(99,102,241,0.12)]
+        className="relative rounded-2xl border border-vt/15 bg-vt-bg2/50
+          shadow-[0_0_80px_-20px_var(--vt-glow)]
+          focus-within:border-vt/30 focus-within:shadow-[0_0_60px_-10px_var(--vt-glow)]
           transition-all duration-300"
       >
         <textarea
@@ -135,7 +135,7 @@ export function StrategyInput({
             className={`absolute right-3 top-3 p-1.5 rounded-lg transition-all duration-150 ${
               isListening
                 ? 'text-red-400 bg-red-500/10 ring-2 ring-red-500/30 animate-pulse'
-                : 'text-slate-600 hover:text-slate-300 hover:bg-slate-800/60'
+                : 'text-vt-line hover:text-slate-300 hover:bg-vt-bg3/60'
             }`}
           >
             <Mic className="size-4" />
@@ -152,13 +152,13 @@ export function StrategyInput({
             )}
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[11px] text-slate-600 hidden sm:inline select-none">
+            <span className="text-[11px] text-vt-line hidden sm:inline select-none">
               Cmd+Enter
             </span>
             <button
               onClick={handleParse}
               disabled={isParseDisabled}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500
+              className="inline-flex items-center gap-2 rounded-xl bg-vt hover:bg-vt-hover
                 text-white text-sm font-medium px-4 h-8
                 disabled:opacity-30 disabled:cursor-not-allowed
                 transition-all duration-150 active:scale-[0.97]"
@@ -198,9 +198,9 @@ export function StrategyInput({
           <button
             key={example}
             onClick={() => setPrompt(example)}
-            className="text-[12px] text-slate-500 hover:text-slate-300
-              bg-transparent hover:bg-slate-800/40
-              border border-slate-800/60 hover:border-slate-700/60
+            className="text-[12px] text-slate-500 hover:text-vt-dim
+              bg-transparent hover:bg-vt/[0.05]
+              border border-vt-line/40 hover:border-vt/25
               rounded-full px-3 py-1.5 transition-all duration-150
               max-w-[260px] truncate"
           >
@@ -210,11 +210,11 @@ export function StrategyInput({
       </div>
 
       {/* ── Config Controls (Booking Style) ──────────────────────── */}
-      <div className="rounded-xl border border-slate-800/50 bg-slate-900/30 overflow-hidden">
-        <div className="grid grid-cols-3 lg:grid-cols-6 divide-x divide-slate-800/50">
+      <div className="rounded-xl border border-vt/10 bg-vt-bg2/30 overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-x divide-vt/[0.06]">
           {/* Asset */}
-          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-slate-800/50">
-            <label className="text-[10px] text-slate-600 uppercase tracking-wider font-medium block mb-1">
+          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Asset
             </label>
             <Select
@@ -226,12 +226,12 @@ export function StrategyInput({
               <SelectTrigger className="h-6 w-full border-0 shadow-none bg-transparent p-0 text-sm text-slate-200 focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
+              <SelectContent className="bg-vt-bg3 border-vt-line">
                 {ASSETS.map((asset) => (
                   <SelectItem
                     key={asset}
                     value={asset}
-                    className="text-slate-100 focus:bg-slate-700"
+                    className="text-slate-100 focus:bg-vt-bg3"
                   >
                     {asset}/USD
                   </SelectItem>
@@ -240,39 +240,9 @@ export function StrategyInput({
             </Select>
           </div>
 
-          {/* Start Date */}
-          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-slate-800/50">
-            <label className="text-[10px] text-slate-600 uppercase tracking-wider font-medium block mb-1">
-              From
-            </label>
-            <input
-              type="date"
-              value={config.startDate}
-              onChange={(e) =>
-                onConfigChange({ ...config, startDate: e.target.value })
-              }
-              className="h-6 w-full bg-transparent text-sm text-slate-200 border-none p-0 outline-none [color-scheme:dark]"
-            />
-          </div>
-
-          {/* End Date */}
-          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-slate-800/50">
-            <label className="text-[10px] text-slate-600 uppercase tracking-wider font-medium block mb-1">
-              To
-            </label>
-            <input
-              type="date"
-              value={config.endDate}
-              onChange={(e) =>
-                onConfigChange({ ...config, endDate: e.target.value })
-              }
-              className="h-6 w-full bg-transparent text-sm text-slate-200 border-none p-0 outline-none [color-scheme:dark]"
-            />
-          </div>
-
           {/* Capital */}
-          <div className="px-3 py-2.5 col-span-1">
-            <label className="text-[10px] text-slate-600 uppercase tracking-wider font-medium block mb-1">
+          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Capital
             </label>
             <div className="flex items-center h-6">
@@ -294,9 +264,39 @@ export function StrategyInput({
             </div>
           </div>
 
+          {/* Start Date */}
+          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
+              From
+            </label>
+            <input
+              type="date"
+              value={config.startDate}
+              onChange={(e) =>
+                onConfigChange({ ...config, startDate: e.target.value })
+              }
+              className="h-6 w-full min-w-0 bg-transparent text-[13px] sm:text-sm text-slate-200 border-none p-0 outline-none [color-scheme:dark]"
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="px-3 py-2.5 col-span-1 border-b sm:border-b-0 border-vt-line/30">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
+              To
+            </label>
+            <input
+              type="date"
+              value={config.endDate}
+              onChange={(e) =>
+                onConfigChange({ ...config, endDate: e.target.value })
+              }
+              className="h-6 w-full min-w-0 bg-transparent text-[13px] sm:text-sm text-slate-200 border-none p-0 outline-none [color-scheme:dark]"
+            />
+          </div>
+
           {/* Fee */}
           <div className="px-3 py-2.5 col-span-1">
-            <label className="text-[10px] text-slate-600 uppercase tracking-wider font-medium block mb-1">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Fee
             </label>
             <div className="flex items-center h-6">
@@ -314,13 +314,13 @@ export function StrategyInput({
                 className="w-full bg-transparent text-sm text-slate-200 border-none p-0 outline-none
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-slate-600 ml-0.5 shrink-0">bps</span>
+              <span className="text-[10px] text-vt-line ml-0.5 shrink-0">bps</span>
             </div>
           </div>
 
           {/* Slippage */}
           <div className="px-3 py-2.5 col-span-1">
-            <label className="text-[10px] text-slate-600 uppercase tracking-wider font-medium block mb-1">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Slippage
             </label>
             <div className="flex items-center h-6">
@@ -338,7 +338,7 @@ export function StrategyInput({
                 className="w-full bg-transparent text-sm text-slate-200 border-none p-0 outline-none
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
-              <span className="text-[10px] text-slate-600 ml-0.5 shrink-0">bps</span>
+              <span className="text-[10px] text-vt-line ml-0.5 shrink-0">bps</span>
             </div>
           </div>
         </div>

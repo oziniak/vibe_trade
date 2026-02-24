@@ -27,7 +27,7 @@ export function PresetGallery({
           {PRESETS.map((preset) => (
             <Card
               key={preset.id}
-              className="bg-slate-800/30 border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/50 cursor-pointer transition-all py-3 gap-1 min-h-[48px]"
+              className="bg-vt-bg3/30 border-vt-line/50 hover:border-vt-line hover:bg-vt-bg3/50 cursor-pointer transition-all py-3 gap-1 min-h-[48px]"
               onClick={() => onSelectPreset(preset)}
             >
               <CardContent className="px-4 py-0">
@@ -66,13 +66,13 @@ export function PresetGallery({
           {DEMO_SNAPSHOTS.map((snapshot) => (
             <Card
               key={snapshot.id}
-              className="bg-slate-800/30 border-slate-700/50 hover:border-indigo-500/40 hover:bg-slate-800/50 cursor-pointer transition-all py-3 gap-1 min-h-[48px]"
+              className="bg-vt-bg3/30 border-vt-line/50 hover:border-vt/40 hover:bg-vt-bg3/50 cursor-pointer transition-all py-3 gap-1 min-h-[48px]"
               onClick={() => onSelectSnapshot(snapshot)}
             >
               <CardContent className="px-4 py-0">
                 <div className="flex items-center gap-2">
                   <svg
-                    className="h-3.5 w-3.5 text-indigo-400 shrink-0"
+                    className="h-3.5 w-3.5 text-vt-dim shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="2"

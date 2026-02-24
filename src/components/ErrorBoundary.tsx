@@ -32,8 +32,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 flex items-center justify-center p-6">
-          <div className="max-w-md w-full rounded-xl border border-red-500/30 bg-slate-900/80 p-8 text-center space-y-4">
+        <div className="min-h-screen bg-gradient-to-b from-vt-bg1 to-vt-bg2 flex items-center justify-center p-6">
+          <div className="max-w-md w-full rounded-xl border border-red-500/30 bg-vt-bg2/80 p-8 text-center space-y-4">
             <div className="w-14 h-14 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center">
               <svg
                 className="h-7 w-7 text-red-400"
@@ -57,20 +57,20 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               This is likely a bug — please try refreshing the page.
             </p>
             {this.state.error && (
-              <p className="text-xs text-red-400/80 font-mono bg-slate-800/50 rounded-md p-2 break-words">
+              <p className="text-xs text-red-400/80 font-mono bg-vt-bg3/50 rounded-md p-2 break-words">
                 {this.state.error.message}
               </p>
             )}
             <div className="flex gap-3 justify-center pt-2">
               <button
                 onClick={this.handleReset}
-                className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-100 transition-colors"
+                className="px-4 py-2 text-sm font-medium rounded-lg border border-vt-line text-slate-300 hover:bg-vt-bg3 hover:text-slate-100 transition-colors"
               >
                 Try Again
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
+                className="px-4 py-2 text-sm font-medium rounded-lg bg-vt hover:bg-vt-hover text-white transition-colors"
               >
                 Reload Page
               </button>

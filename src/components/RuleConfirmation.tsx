@@ -51,12 +51,12 @@ function ConditionCard({
 
   return (
     <div
-      className={`rounded-lg border border-slate-700/50 bg-slate-800/50 p-3 border-l-2 ${borderColor}`}
+      className={`rounded-lg border border-vt-line/50 bg-vt-bg3/50 p-3 border-l-2 ${borderColor}`}
     >
       <div className="flex items-center gap-2">
         <span className="text-sm text-slate-200">{condition.label}</span>
         {condition.scope === 'position' && (
-          <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
+          <Badge variant="outline" className="text-xs border-vt-line text-slate-400">
             Position
           </Badge>
         )}
@@ -162,7 +162,7 @@ export function RuleConfirmation({
 
       {/* Tabs: Rules / JSON */}
       <Tabs defaultValue="rules" className="w-full">
-        <TabsList className="w-full bg-slate-800/50 border border-slate-700/50">
+        <TabsList className="w-full bg-vt-bg3/50 border border-vt-line/50">
           <TabsTrigger value="rules" className="flex-1">
             Rules
           </TabsTrigger>
@@ -173,14 +173,14 @@ export function RuleConfirmation({
 
         <TabsContent value="rules" className="space-y-4 mt-4">
           {/* Entry conditions */}
-          <Card className="bg-slate-800/30 border-slate-700/50 py-4 gap-3">
+          <Card className="bg-vt-bg3/30 border-vt-line/50 py-4 gap-3">
             <CardHeader className="py-0">
               <CardTitle className="text-sm font-medium text-emerald-400 flex items-center gap-2">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Entry Conditions
-                <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
+                <Badge variant="outline" className="text-xs border-vt-line text-slate-400">
                   {rules.entry.op}
                 </Badge>
               </CardTitle>
@@ -205,14 +205,14 @@ export function RuleConfirmation({
           </Card>
 
           {/* Exit conditions */}
-          <Card className="bg-slate-800/30 border-slate-700/50 py-4 gap-3">
+          <Card className="bg-vt-bg3/30 border-vt-line/50 py-4 gap-3">
             <CardHeader className="py-0">
               <CardTitle className="text-sm font-medium text-red-400 flex items-center gap-2">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Exit Conditions
-                <Badge variant="outline" className="text-xs border-slate-600 text-slate-400">
+                <Badge variant="outline" className="text-xs border-vt-line text-slate-400">
                   {rules.exit.op}
                 </Badge>
               </CardTitle>
@@ -237,7 +237,7 @@ export function RuleConfirmation({
           </Card>
 
           {/* Position sizing */}
-          <Card className="bg-slate-800/30 border-slate-700/50 py-4 gap-3">
+          <Card className="bg-vt-bg3/30 border-vt-line/50 py-4 gap-3">
             <CardHeader className="py-0">
               <CardTitle className="text-sm font-medium text-slate-300">
                 Position Sizing
@@ -263,7 +263,7 @@ export function RuleConfirmation({
             value={editedJson}
             onChange={(e) => setEditedJson(e.target.value)}
             rows={18}
-            className="font-mono text-xs bg-slate-900/50 border-slate-700 text-slate-300 resize-none"
+            className="font-mono text-xs bg-vt-bg2/50 border-vt-line text-slate-300 resize-none"
             readOnly
           />
           <p className="text-xs text-slate-500 mt-2">
@@ -278,14 +278,14 @@ export function RuleConfirmation({
           variant="outline"
           onClick={onBack}
           disabled={isRunning}
-          className="flex-1 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+          className="flex-1 border-vt-line text-slate-300 hover:bg-vt-bg3 hover:text-slate-100"
         >
           Back
         </Button>
         <Button
           onClick={onConfirm}
           disabled={isRunning}
-          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+          className="flex-1 bg-vt hover:bg-vt-hover text-white"
         >
           {isRunning ? (
             <span className="flex items-center gap-2">

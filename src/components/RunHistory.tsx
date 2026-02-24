@@ -59,7 +59,7 @@ function RunHistoryEntry({
 
   return (
     <Card
-      className="bg-slate-800/30 border-slate-700/50 py-2 gap-0 cursor-pointer hover:border-slate-600 hover:bg-slate-800/50 transition-colors"
+      className="bg-vt-bg3/30 border-vt-line/50 py-2 gap-0 cursor-pointer hover:border-vt-line hover:bg-vt-bg3/50 transition-colors"
       onClick={handleClick}
     >
       <CardContent className="px-3 py-0 space-y-1.5">

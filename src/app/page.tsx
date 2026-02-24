@@ -28,6 +28,8 @@ import { AuditPanel } from '@/components/AuditPanel';
 import { RunHistory } from '@/components/RunHistory';
 import { ComparisonView } from '@/components/ComparisonView';
 import { SlidePanel } from '@/components/SlidePanel';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { BackgroundShader } from '@/components/BackgroundShader';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import {
@@ -124,10 +126,10 @@ function LoadingSpinner({ message }: { message: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
       <div className="relative">
-        <div className="w-12 h-12 rounded-full border-2 border-slate-700" />
-        <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-t-indigo-500 animate-spin" />
+        <div className="w-12 h-12 rounded-full border-2 border-vt/20" />
+        <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-t-vt animate-spin" />
       </div>
-      <p className="text-sm text-slate-400">{message}</p>
+      <p className="text-sm text-vt-dim/60">{message}</p>
     </div>
   );
 }
@@ -453,35 +455,38 @@ export default function Home() {
 
   return (
     <ErrorBoundary>
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900">
+    <div className="min-h-screen bg-vt-bg1 isolate overflow-x-hidden">
+      <BackgroundShader />
       {/* Header */}
-      <header className="border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-vt-line bg-vt-bg1/90 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <button
             onClick={handleBack}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <h1 className="text-lg font-semibold text-slate-100 tracking-tight">
-              Vibe Trade
+            <h1 className="text-lg font-semibold tracking-tight">
+              <span className="text-vt">Vibe</span>{' '}
+              <span className="text-slate-100">Trade</span>
             </h1>
             <span className="text-xs text-slate-500 hidden sm:inline">
               Crypto Strategy Backtester
             </span>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <ThemeSwitcher />
             {/* Presets button (visible on input phase) */}
             {state.phase === 'input' && (
               <button
                 onClick={() => setPanelOpen(true)}
-                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300
-                  px-3 py-1.5 rounded-lg hover:bg-slate-800/50 transition-all"
+                className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-vt-dim
+                  px-3 py-1.5 rounded-lg hover:bg-vt/[0.05] transition-all"
               >
                 <svg className="size-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                 </svg>
                 <span className="hidden sm:inline">Presets</span>
                 {state.runHistory.length > 0 && (
-                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-medium px-1">
+                  <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-vt/20 text-vt-dim text-[10px] font-medium px-1">
                     {state.runHistory.length}
                   </span>
                 )}
@@ -504,7 +509,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 relative z-10">
         {/* Error toast */}
         {state.error && (
           <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 flex items-start gap-2">
@@ -519,7 +524,7 @@ export default function Home() {
                     dispatch({ type: 'CLEAR_ERROR' });
                     setPanelOpen(true);
                   }}
-                  className="mt-1.5 text-xs text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
+                  className="mt-1.5 text-xs text-vt-dim hover:text-vt underline underline-offset-2 transition-colors"
                 >
                   Browse preset strategies
                 </button>
@@ -539,19 +544,19 @@ export default function Home() {
             {/* Centered hero layout */}
             <div className="flex flex-col items-center pt-[8vh] sm:pt-[14vh] pb-12">
               {/* Background glow */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/[0.04] rounded-full blur-[120px] pointer-events-none" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full blur-[120px] pointer-events-none" style={{ backgroundColor: 'var(--vt-glow-bg)' }} />
 
               {/* Tagline */}
               <div className="relative text-center mb-8 space-y-3">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-100 leading-snug">
                   Describe a trading strategy.
                   <br />
-                  <span className="text-indigo-400">
+                  <span className="text-vt">
                     See if it would&apos;ve worked.
                   </span>
                 </h2>
                 <p className="text-sm text-slate-500 max-w-md mx-auto">
-                  AI-powered backtesting for 8 crypto assets — no code required.
+                  AI-powered backtesting for <span className="text-vt-dim">8 crypto assets</span> — no code required.
                 </p>
               </div>
 
@@ -566,7 +571,7 @@ export default function Home() {
               {/* Browse presets link */}
               <button
                 onClick={() => setPanelOpen(true)}
-                className="mt-8 text-[13px] text-slate-600 hover:text-indigo-400 transition-colors
+                className="mt-8 text-[13px] text-vt-dim/70 hover:text-vt transition-colors
                   flex items-center gap-1.5 group"
               >
                 <span>Or try a preset strategy</span>
@@ -593,7 +598,7 @@ export default function Home() {
                 onSelectSnapshot={handleSnapshotFromPanel}
               />
               {state.runHistory.length > 0 && (
-                <div className="mt-6 pt-6 border-t border-slate-800/60">
+                <div className="mt-6 pt-6 border-t border-vt-line/60">
                   <RunHistory history={state.runHistory} onRestore={handleRestoreFromPanel} />
                 </div>
               )}
@@ -617,7 +622,7 @@ export default function Home() {
             </div>
             <div className="flex-1 min-w-0 flex items-center justify-center">
               <div className="text-center space-y-3 py-16">
-                <div className="w-16 h-16 mx-auto rounded-full bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto rounded-full bg-vt-bg3/50 border border-vt-line/50 flex items-center justify-center">
                   <svg className="h-8 w-8 text-slate-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                   </svg>
@@ -649,14 +654,14 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2 self-start flex-wrap">
                 {/* Asset swap buttons */}
-                <div className="flex flex-wrap items-center gap-1 rounded-lg border border-slate-700/50 bg-slate-800/30 p-0.5">
+                <div className="flex flex-wrap items-center gap-1 rounded-lg border border-vt-line/50 bg-vt-bg3/30 p-0.5">
                   {ASSETS.map((a) => (
                     <button
                       key={a}
                       onClick={() => handleAssetSwap(a)}
                       className={`px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${
                         a === state.config.asset
-                          ? 'bg-indigo-600 text-white'
+                          ? 'bg-vt text-white'
                           : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
                       }`}
                     >
@@ -668,7 +673,7 @@ export default function Home() {
                   variant="outline"
                   size="sm"
                   onClick={handleBack}
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
+                  className="border-vt-line text-slate-300 hover:bg-vt-bg3"
                 >
                   New
                 </Button>
@@ -758,7 +763,7 @@ export default function Home() {
 
             {/* Equity curve */}
             <div>
-              <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">
+              <h3 className="text-sm font-medium text-vt-dim/70 mb-2 uppercase tracking-wider">
                 Equity Curve
               </h3>
               <EquityCurve equityCurve={result.equityCurve} />
@@ -766,7 +771,7 @@ export default function Home() {
 
             {/* Price chart */}
             <div>
-              <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">
+              <h3 className="text-sm font-medium text-vt-dim/70 mb-2 uppercase tracking-wider">
                 Price Chart
               </h3>
               <ChartWithData
@@ -797,11 +802,11 @@ export default function Home() {
 
             {/* Trade log */}
             <div>
-              <h3 className="text-sm font-medium text-slate-400 mb-2 uppercase tracking-wider">
+              <h3 className="text-sm font-medium text-vt-dim/70 mb-2 uppercase tracking-wider">
                 Trade Log ({result.trades.length} trades)
               </h3>
               {result.trades.length === 0 ? (
-                <div className="rounded-lg border border-slate-700/50 bg-slate-800/20 p-6 text-center">
+                <div className="rounded-lg border border-vt-line/50 bg-vt-bg3/20 p-6 text-center">
                   <p className="text-slate-400">No trades were generated by this strategy.</p>
                   <p className="text-xs text-slate-600 mt-1">
                     Try adjusting the indicator parameters or date range.
@@ -817,7 +822,7 @@ export default function Home() {
 
             {/* Compare section */}
             {!comparisonResult && (
-              <div className="rounded-lg border border-slate-700/30 bg-slate-800/10 p-4">
+              <div className="rounded-lg border border-vt-line/30 bg-vt-bg3/10 p-4">
                 <h3 className="text-sm font-medium text-slate-400 mb-3">Compare with another strategy</h3>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
@@ -826,13 +831,13 @@ export default function Home() {
                     onChange={(e) => setComparePrompt(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCompareWithPrompt(comparePrompt)}
                     placeholder='e.g., "DCA $100 into BTC every week"'
-                    className="flex-1 rounded-md border border-slate-700 bg-slate-900/50 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 rounded-md border border-vt-line bg-vt-bg2/50 px-3 py-2.5 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-vt"
                   />
                   <Button
                     size="sm"
                     onClick={() => handleCompareWithPrompt(comparePrompt)}
                     disabled={isComparing || !comparePrompt.trim()}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="bg-vt hover:bg-vt-hover text-white"
                   >
                     {isComparing ? 'Parsing...' : 'Compare'}
                   </Button>
@@ -849,7 +854,7 @@ export default function Home() {
                         const preset = getPresetById(p.id);
                         if (preset) handleCompare(preset);
                       }}
-                      className="text-xs px-2 py-1 rounded border border-slate-700/50 text-slate-500 hover:text-slate-300 hover:border-slate-600 transition-colors"
+                      className="text-xs px-2 py-1 rounded border border-vt-line/50 text-slate-500 hover:text-slate-300 hover:border-vt-line transition-colors"
                     >
                       vs {p.label}
                     </button>
@@ -916,7 +921,7 @@ function ChartWithData({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-slate-700/50 bg-slate-900/50">
+      <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-vt-line/50 bg-vt-bg2/50">
         <div className="flex items-center gap-2 text-slate-400">
           <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
