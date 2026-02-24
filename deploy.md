@@ -37,9 +37,9 @@ After this, every push to `main` auto-deploys to production. PR branches get pre
 
 Go to **Project Settings → Environment Variables** and add:
 
-| Name               | Value                  | Notes                        |
-|--------------------|------------------------|------------------------------|
-| `ANTHROPIC_API_KEY` | `sk-ant-...`          | Your Claude API key          |
+| Name                | Value        | Notes               |
+| ------------------- | ------------ | ------------------- |
+| `ANTHROPIC_API_KEY` | `sk-ant-...` | Your Claude API key |
 
 Redeploy after adding (Vercel dashboard → Deployments → Redeploy, or just push a commit).
 
@@ -56,10 +56,10 @@ Rate limiting protects your Claude API budget: **5 requests/min** and **10 reque
 5. Copy the **REST URL** and **REST Token**
 6. In Vercel, go to **Project Settings → Environment Variables** and add:
 
-| Name                | Value                        |
-|---------------------|------------------------------|
-| `UPSTASH_REDIS_REST_URL`   | `https://xxx.upstash.io`     |
-| `UPSTASH_REDIS_REST_TOKEN` | `AXxx...`                    |
+| Name                       | Value                    |
+| -------------------------- | ------------------------ |
+| `UPSTASH_REDIS_REST_URL`   | `https://xxx.upstash.io` |
+| `UPSTASH_REDIS_REST_TOKEN` | `AXxx...`                |
 
 7. Redeploy for the env vars to take effect (push a commit, or Deployments → Redeploy)
 
@@ -79,8 +79,10 @@ Rate limiting protects your Claude API budget: **5 requests/min** and **10 reque
 
 ## Summary of all env vars
 
-| Variable             | Required | Source                     |
-|----------------------|----------|----------------------------|
-| `ANTHROPIC_API_KEY`  | Yes      | console.anthropic.com      |
-| `UPSTASH_REDIS_REST_URL`   | No       | console.upstash.com |
-| `UPSTASH_REDIS_REST_TOKEN` | No       | console.upstash.com |
+| Variable                   | Required | Source                |
+| -------------------------- | -------- | --------------------- |
+| `ANTHROPIC_API_KEY`        | Yes      | console.anthropic.com |
+| `UPSTASH_REDIS_REST_URL`   | No       | console.upstash.com   |
+| `UPSTASH_REDIS_REST_TOKEN` | No       | console.upstash.com   |
+
+<!-- add commit with email address -->
