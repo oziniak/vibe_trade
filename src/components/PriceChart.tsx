@@ -105,32 +105,85 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
           shape: 'arrowUp' | 'arrowDown';
           text: string;
         };
-        const markers: MarkerItem[] = [];
 
-        // Create a set of valid candle dates for filtering
+        const MAX_MARKERS_PER_SIDE = 20;
         const validDates = new Set(candles.map((c) => c.t));
 
-        for (const trade of trades) {
-          // Only add markers for dates that exist in our candle data
-          if (validDates.has(trade.entryDate)) {
-            markers.push({
-              time: trade.entryDate,
-              position: 'belowBar',
-              color: '#22c55e',
-              shape: 'arrowUp',
-              text: `Buy $${trade.entryPrice.toFixed(0)}`,
-            });
-          }
+        // Collect raw buy/sell entries
+        const buys: { time: string; price: number }[] = [];
+        const sells: { time: string; price: number }[] = [];
 
-          if (validDates.has(trade.exitDate)) {
-            markers.push({
-              time: trade.exitDate,
-              position: 'aboveBar',
-              color: '#ef4444',
-              shape: 'arrowDown',
-              text: `Sell $${trade.exitPrice.toFixed(0)}`,
-            });
+        for (const trade of trades) {
+          if (validDates.has(trade.entryDate)) {
+            buys.push({ time: trade.entryDate, price: trade.entryPrice });
           }
+          if (validDates.has(trade.exitDate)) {
+            sells.push({ time: trade.exitDate, price: trade.exitPrice });
+          }
+        }
+
+        // Merge markers that share the same date (e.g. DCA sells all on last candle)
+        function mergeByDate(items: { time: string; price: number }[]) {
+          const grouped = new Map<string, { count: number; totalPrice: number }>();
+          for (const item of items) {
+            const existing = grouped.get(item.time);
+            if (existing) {
+              existing.count++;
+              existing.totalPrice += item.price;
+            } else {
+              grouped.set(item.time, { count: 1, totalPrice: item.price });
+            }
+          }
+          return Array.from(grouped.entries()).map(([time, { count, totalPrice }]) => ({
+            time,
+            avgPrice: totalPrice / count,
+            count,
+          }));
+        }
+
+        // Evenly sample to at most N items
+        function sample<T>(items: T[], max: number): T[] {
+          if (items.length <= max) return items;
+          const step = items.length / max;
+          const result: T[] = [];
+          for (let i = 0; i < max; i++) {
+            result.push(items[Math.floor(i * step)]);
+          }
+          return result;
+        }
+
+        const mergedBuys = mergeByDate(buys).sort((a, b) => (a.time < b.time ? -1 : 1));
+        const mergedSells = mergeByDate(sells).sort((a, b) => (a.time < b.time ? -1 : 1));
+
+        const sampledBuys = sample(mergedBuys, MAX_MARKERS_PER_SIDE);
+        const sampledSells = sample(mergedSells, MAX_MARKERS_PER_SIDE);
+
+        const markers: MarkerItem[] = [];
+
+        for (const b of sampledBuys) {
+          const label = b.count > 1
+            ? `${b.count}× Buy ~$${b.avgPrice.toFixed(0)}`
+            : `Buy $${b.avgPrice.toFixed(0)}`;
+          markers.push({
+            time: b.time,
+            position: 'belowBar',
+            color: '#22c55e',
+            shape: 'arrowUp',
+            text: label,
+          });
+        }
+
+        for (const s of sampledSells) {
+          const label = s.count > 1
+            ? `${s.count}× Sell ~$${s.avgPrice.toFixed(0)}`
+            : `Sell $${s.avgPrice.toFixed(0)}`;
+          markers.push({
+            time: s.time,
+            position: 'aboveBar',
+            color: '#ef4444',
+            shape: 'arrowDown',
+            text: label,
+          });
         }
 
         // Sort markers by time (required by lightweight-charts)
