@@ -66,7 +66,8 @@ export function computeBenchmark(
       date: candles[i].t,
       equity: 0, // strategy equity not known here; caller fills this in
       benchmarkEquity: equity,
-      drawdownPct,
+      drawdownPct: 0, // strategy drawdown not known here; caller fills this in
+      benchmarkDrawdownPct: drawdownPct,
     });
   }
 

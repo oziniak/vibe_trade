@@ -17,7 +17,7 @@ function makeEquityCurve(
     const date = addDays(startDate, i);
     if (equity > peak) peak = equity;
     const drawdownPct = peak > 0 ? ((equity - peak) / peak) * 100 : 0;
-    return { date, equity, benchmarkEquity: equity, drawdownPct };
+    return { date, equity, benchmarkEquity: equity, drawdownPct, benchmarkDrawdownPct: 0 };
   });
 }
 
@@ -515,16 +515,16 @@ describe('computeBenchmark', () => {
     // Day 1: 100*105 = 10500 (dd = (10500-11000)/11000 = -4.545%)
     // Day 2: 100*100 = 10000 (dd = (10000-11000)/11000 = -9.091%)
     // Day 3: 100*115 = 11500 (new peak, dd = 0)
-    expect(result.equityCurve[0].drawdownPct).toBeCloseTo(0, 5);
-    expect(result.equityCurve[1].drawdownPct).toBeCloseTo(
+    expect(result.equityCurve[0].benchmarkDrawdownPct).toBeCloseTo(0, 5);
+    expect(result.equityCurve[1].benchmarkDrawdownPct).toBeCloseTo(
       ((10500 - 11000) / 11000) * 100,
       4,
     );
-    expect(result.equityCurve[2].drawdownPct).toBeCloseTo(
+    expect(result.equityCurve[2].benchmarkDrawdownPct).toBeCloseTo(
       ((10000 - 11000) / 11000) * 100,
       4,
     );
-    expect(result.equityCurve[3].drawdownPct).toBeCloseTo(0, 4);
+    expect(result.equityCurve[3].benchmarkDrawdownPct).toBeCloseTo(0, 4);
   });
 
   it('handles zero fees and slippage', () => {

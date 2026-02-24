@@ -368,10 +368,12 @@ function runStandardBacktest(
     slippageBps,
   );
 
-  // Build a lookup from date to benchmark equity for the equity curve
+  // Build lookups from date to benchmark equity and drawdown for the equity curve
   const benchmarkByDate = new Map<string, number>();
+  const benchmarkDrawdownByDate = new Map<string, number>();
   for (const pt of benchmark.equityCurve) {
     benchmarkByDate.set(pt.date, pt.benchmarkEquity);
+    benchmarkDrawdownByDate.set(pt.date, pt.benchmarkDrawdownPct);
   }
 
   // 4. Signal loop
@@ -499,12 +501,14 @@ function runStandardBacktest(
 
     const drawdownPct = peak > 0 ? ((equity - peak) / peak) * 100 : 0;
     const benchmarkEquity = benchmarkByDate.get(candles[i].t) ?? initialCapital;
+    const benchmarkDrawdownPct = benchmarkDrawdownByDate.get(candles[i].t) ?? 0;
 
     equityCurve.push({
       date: candles[i].t,
       equity,
       benchmarkEquity,
       drawdownPct,
+      benchmarkDrawdownPct,
     });
   }
 
@@ -600,8 +604,10 @@ function runDCABacktest(
   // 2. Compute benchmark from candle 0
   const benchmark = computeBenchmark(candles, initialCapital, feeBps, slippageBps);
   const benchmarkByDate = new Map<string, number>();
+  const benchmarkDrawdownByDate = new Map<string, number>();
   for (const pt of benchmark.equityCurve) {
     benchmarkByDate.set(pt.date, pt.benchmarkEquity);
+    benchmarkDrawdownByDate.set(pt.date, pt.benchmarkDrawdownPct);
   }
 
   // 3. DCA loop
@@ -668,12 +674,14 @@ function runDCABacktest(
 
     const drawdownPct = peak > 0 ? ((equity - peak) / peak) * 100 : 0;
     const benchmarkEquity = benchmarkByDate.get(candles[i].t) ?? initialCapital;
+    const benchmarkDrawdownPct = benchmarkDrawdownByDate.get(candles[i].t) ?? 0;
 
     equityCurve.push({
       date: candles[i].t,
       equity,
       benchmarkEquity,
       drawdownPct,
+      benchmarkDrawdownPct,
     });
   }
 

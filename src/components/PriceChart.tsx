@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Candle, Trade } from '@/types/results';
+import {
+  determineBucketGranularity,
+  clusterMarkers,
+  formatMarkerLabel,
+} from '@/lib/marker-clustering';
 
 interface PriceChartProps {
   candles: Candle[];
@@ -96,17 +101,10 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
 
       candleSeries.setData(chartData);
 
-      // Add trade markers using v5 createSeriesMarkers API
-      if (trades.length > 0) {
-        type MarkerItem = {
-          time: string;
-          position: 'belowBar' | 'aboveBar';
-          color: string;
-          shape: 'arrowUp' | 'arrowDown';
-          text: string;
-        };
+      // ── Zoom-adaptive trade markers ──────────────────────────────────────
+      let markerCleanup: (() => void) | undefined;
 
-        const MAX_MARKERS_PER_SIDE = 20;
+      if (trades.length > 0) {
         const validDates = new Set(candles.map((c) => c.t));
 
         // Collect raw buy/sell entries
@@ -123,7 +121,7 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         }
 
         // Merge markers that share the same date (e.g. DCA sells all on last candle)
-        function mergeByDate(items: { time: string; price: number }[]) {
+        function mergeByDate(items: { time: string; price: number }[], side: 'buy' | 'sell') {
           const grouped = new Map<string, { count: number; totalPrice: number }>();
           for (const item of items) {
             const existing = grouped.get(item.time);
@@ -138,60 +136,88 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
             time,
             avgPrice: totalPrice / count,
             count,
+            side,
           }));
         }
 
-        // Evenly sample to at most N items
-        function sample<T>(items: T[], max: number): T[] {
-          if (items.length <= max) return items;
-          const step = items.length / max;
-          const result: T[] = [];
-          for (let i = 0; i < max; i++) {
-            result.push(items[Math.floor(i * step)]);
+        const allMerged = [
+          ...mergeByDate(buys, 'buy'),
+          ...mergeByDate(sells, 'sell'),
+        ].sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
+
+        // Create marker handle for efficient updates (no destroy/recreate)
+        const markerHandle = createSeriesMarkers(candleSeries, []);
+
+        let lastGranularity: string | null = null;
+
+        function updateMarkers() {
+          const logicalRange = chart.timeScale().getVisibleLogicalRange();
+          const visibleBarCount = logicalRange
+            ? Math.ceil(logicalRange.to - logicalRange.from)
+            : candles.length;
+
+          const granularity = determineBucketGranularity(visibleBarCount);
+
+          // Skip recomputation if granularity unchanged (panning at same zoom)
+          if (granularity === lastGranularity) return;
+          lastGranularity = granularity;
+
+          const buyMarkers = allMerged.filter((m) => m.side === 'buy');
+          const sellMarkers = allMerged.filter((m) => m.side === 'sell');
+
+          const clusteredBuys = clusterMarkers(buyMarkers, granularity);
+          const clusteredSells = clusterMarkers(sellMarkers, granularity);
+
+          type MarkerItem = {
+            time: string;
+            position: 'belowBar' | 'aboveBar';
+            color: string;
+            shape: 'arrowUp' | 'arrowDown';
+            text: string;
+          };
+
+          const markers: MarkerItem[] = [];
+
+          for (const c of clusteredBuys) {
+            markers.push({
+              time: c.time,
+              position: 'belowBar',
+              color: '#22c55e',
+              shape: 'arrowUp',
+              text: formatMarkerLabel(c),
+            });
           }
-          return result;
+
+          for (const c of clusteredSells) {
+            markers.push({
+              time: c.time,
+              position: 'aboveBar',
+              color: '#ef4444',
+              shape: 'arrowDown',
+              text: formatMarkerLabel(c),
+            });
+          }
+
+          markers.sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
+          markerHandle.setMarkers(markers);
         }
 
-        const mergedBuys = mergeByDate(buys).sort((a, b) => (a.time < b.time ? -1 : 1));
-        const mergedSells = mergeByDate(sells).sort((a, b) => (a.time < b.time ? -1 : 1));
+        // Initial render
+        updateMarkers();
 
-        const sampledBuys = sample(mergedBuys, MAX_MARKERS_PER_SIDE);
-        const sampledSells = sample(mergedSells, MAX_MARKERS_PER_SIDE);
+        // Debounced handler for zoom/pan changes
+        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+        const debouncedUpdate = () => {
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(updateMarkers, 100);
+        };
 
-        const markers: MarkerItem[] = [];
+        chart.timeScale().subscribeVisibleLogicalRangeChange(debouncedUpdate);
 
-        for (const b of sampledBuys) {
-          const label = b.count > 1
-            ? `${b.count}× Buy ~$${b.avgPrice.toFixed(0)}`
-            : `Buy $${b.avgPrice.toFixed(0)}`;
-          markers.push({
-            time: b.time,
-            position: 'belowBar',
-            color: '#22c55e',
-            shape: 'arrowUp',
-            text: label,
-          });
-        }
-
-        for (const s of sampledSells) {
-          const label = s.count > 1
-            ? `${s.count}× Sell ~$${s.avgPrice.toFixed(0)}`
-            : `Sell $${s.avgPrice.toFixed(0)}`;
-          markers.push({
-            time: s.time,
-            position: 'aboveBar',
-            color: '#ef4444',
-            shape: 'arrowDown',
-            text: label,
-          });
-        }
-
-        // Sort markers by time (required by lightweight-charts)
-        markers.sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
-
-        if (markers.length > 0) {
-          createSeriesMarkers(candleSeries, markers);
-        }
+        markerCleanup = () => {
+          if (debounceTimer) clearTimeout(debounceTimer);
+          chart.timeScale().unsubscribeVisibleLogicalRangeChange(debouncedUpdate);
+        };
       }
 
       // ── Indicator overlays ──────────────────────────────────────────
@@ -296,6 +322,7 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
       setIsLoading(false);
 
       cleanupFn = () => {
+        if (markerCleanup) markerCleanup();
         resizeObserver.unobserve(container);
         resizeObserver.disconnect();
         chart.remove();

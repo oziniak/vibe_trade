@@ -45,6 +45,7 @@ export interface EquityPoint {
   equity: number;
   benchmarkEquity: number;
   drawdownPct: number;
+  benchmarkDrawdownPct: number;
 }
 
 /** All 14 performance metrics */

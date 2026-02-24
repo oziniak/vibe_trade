@@ -143,24 +143,39 @@ function DrawdownTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0 || !label) return null;
 
   const drawdownEntry = payload.find((p) => p.dataKey === 'drawdownPct');
+  const benchmarkDDEntry = payload.find((p) => p.dataKey === 'benchmarkDrawdownPct');
 
   return (
     <div className="rounded-lg border border-slate-700 bg-slate-900/95 px-3 py-2 shadow-xl backdrop-blur-sm">
       <p className="text-xs font-medium text-slate-300 mb-1">
         {formatDateFull(label)}
       </p>
-      {drawdownEntry != null && (
-        <div className="flex items-center gap-2 text-xs">
-          <span
-            className="inline-block h-2 w-2 rounded-full"
-            style={{ backgroundColor: '#ef4444' }}
-          />
-          <span className="text-slate-400">Drawdown:</span>
-          <span className="font-medium text-red-400">
-            {formatPercent(drawdownEntry.value)}
-          </span>
-        </div>
-      )}
+      <div className="space-y-1">
+        {drawdownEntry != null && (
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: '#ef4444' }}
+            />
+            <span className="text-slate-400">Strategy:</span>
+            <span className="font-medium text-red-400">
+              {formatPercent(drawdownEntry.value)}
+            </span>
+          </div>
+        )}
+        {benchmarkDDEntry != null && (
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: BENCHMARK_COLOR }}
+            />
+            <span className="text-slate-400">Buy &amp; Hold:</span>
+            <span className="font-medium text-slate-300">
+              {formatPercent(benchmarkDDEntry.value)}
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -211,12 +226,14 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
 
   // Compute Y-axis domain for drawdown to keep it visually consistent.
   // drawdownPct values are typically negative (e.g. -12.5 meaning -12.5%).
-  const minDrawdown = Math.min(...equityCurve.map((p) => p.drawdownPct));
+  const minDrawdown = Math.min(
+    ...equityCurve.map((p) => Math.min(p.drawdownPct, p.benchmarkDrawdownPct)),
+  );
   // Add a small buffer below the minimum drawdown for visual padding.
   const drawdownDomainMin = Math.floor(minDrawdown * 1.1);
 
   const equityHeight = isMobile ? 240 : 350;
-  const drawdownHeight = isMobile ? 100 : 150;
+  const drawdownHeight = isMobile ? 120 : 200;
   const yAxisWidth = isMobile ? 60 : 90;
 
   return (
@@ -348,7 +365,7 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
               axisLine={{ stroke: '#1e293b' }}
               tickFormatter={(value: number) => `${value.toFixed(0)}%`}
               width={yAxisWidth}
-              domain={[drawdownDomainMin, 0]}
+              domain={[drawdownDomainMin, 5]}
             />
 
             <Tooltip
@@ -358,11 +375,11 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
 
             <ReferenceLine y={0} stroke="#334155" strokeWidth={1} />
 
-            {/* Drawdown area - fills downward from 0 */}
+            {/* Strategy drawdown area - fills downward from 0 */}
             <Area
               type="monotone"
               dataKey="drawdownPct"
-              name="Drawdown"
+              name="Strategy"
               stroke="#ef4444"
               strokeWidth={1.5}
               fill="url(#drawdownGradient)"
@@ -371,6 +388,23 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
               activeDot={{
                 r: 3,
                 fill: '#ef4444',
+                stroke: '#0f172a',
+                strokeWidth: 2,
+              }}
+            />
+
+            {/* Benchmark drawdown - dashed line, no fill */}
+            <Line
+              type="monotone"
+              dataKey="benchmarkDrawdownPct"
+              name="Buy & Hold"
+              stroke={BENCHMARK_COLOR}
+              strokeWidth={1}
+              strokeDasharray="6 3"
+              dot={false}
+              activeDot={{
+                r: 3,
+                fill: BENCHMARK_COLOR,
                 stroke: '#0f172a',
                 strokeWidth: 2,
               }}
