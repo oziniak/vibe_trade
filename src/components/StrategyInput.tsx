@@ -36,6 +36,8 @@ interface StrategyInputProps {
   config: StrategyConfig;
   onConfigChange: (config: StrategyConfig) => void;
   isParsing?: boolean;
+  /** Seconds remaining on rate-limit cooldown (0 = no limit) */
+  rateLimitSeconds?: number;
 }
 
 export function StrategyInput({
@@ -43,6 +45,7 @@ export function StrategyInput({
   config,
   onConfigChange,
   isParsing = false,
+  rateLimitSeconds = 0,
 }: StrategyInputProps) {
   const [prompt, setPrompt] = useState('');
   const [voiceError, setVoiceError] = useState<string | null>(null);
@@ -87,7 +90,8 @@ export function StrategyInput({
 
   const isPromptEmpty = !prompt.trim();
   const hasValidationErrors = validationErrors.length > 0;
-  const isParseDisabled = isPromptEmpty || hasValidationErrors || isParsing;
+  const isRateLimited = rateLimitSeconds > 0;
+  const isParseDisabled = isPromptEmpty || hasValidationErrors || isParsing || isRateLimited;
 
   const handleParse = () => {
     if (isParseDisabled) return;
@@ -159,12 +163,25 @@ export function StrategyInput({
             <button
               onClick={handleParse}
               disabled={isParseDisabled}
-              className="inline-flex items-center gap-2 rounded-xl bg-vt hover:bg-vt-hover
-                text-white text-sm font-medium px-4 h-8
-                disabled:opacity-30 disabled:cursor-not-allowed
-                transition-all duration-150 active:scale-[0.97]"
+              className={`inline-flex items-center gap-2 rounded-xl text-sm font-medium px-4 h-8
+                disabled:cursor-not-allowed transition-all duration-150 active:scale-[0.97]
+                ${isRateLimited
+                  ? 'bg-amber-500/15 text-amber-400/70 border border-amber-500/20 disabled:opacity-70'
+                  : 'bg-vt hover:bg-vt-hover text-white disabled:opacity-30'
+                }`}
             >
-              {isParsing ? (
+              {isRateLimited ? (
+                <>
+                  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-mono tabular-nums text-xs">
+                    {rateLimitSeconds >= 60
+                      ? `${Math.floor(rateLimitSeconds / 60)}:${String(rateLimitSeconds % 60).padStart(2, '0')}`
+                      : `0:${String(rateLimitSeconds).padStart(2, '0')}`}
+                  </span>
+                </>
+              ) : isParsing ? (
                 <>
                   <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />

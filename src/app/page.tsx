@@ -17,7 +17,9 @@ import { loadCandles } from '@/data/loader';
 import { getPresetById } from '@/data/presets';
 import type { ParseResponse } from '@/lib/parser';
 
+import { useCountdown } from '@/hooks/useCountdown';
 import { StrategyInput, type StrategyConfig } from '@/components/StrategyInput';
+import { RateLimitBanner } from '@/components/RateLimitBanner';
 import { RuleConfirmation } from '@/components/RuleConfirmation';
 import { PriceChart } from '@/components/PriceChart';
 import { MetricsGrid } from '@/components/MetricsGrid';
@@ -145,6 +147,8 @@ export default function Home() {
   const [shareCopied, setShareCopied] = useState(false);
   const [shareLoaded, setShareLoaded] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [rateLimitType, setRateLimitType] = useState<'minute' | 'daily'>('minute');
+  const [rateLimitSeconds, startRateLimitCountdown, clearRateLimit] = useCountdown();
 
   // ── Run backtest helper ─────────────────────────────────────────────
   const executeBacktest = useCallback(
@@ -199,14 +203,21 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt, asset: config.asset, timeframe: '1D' }),
         });
-        const data: ParseResponse = await res.json();
+        const data = await res.json();
+
+        if (res.status === 429 && data.retryAfter) {
+          setRateLimitType(data.limitType ?? 'minute');
+          startRateLimitCountdown(data.retryAfter);
+          dispatch({ type: 'SET_PHASE', phase: 'input' });
+          return;
+        }
 
         if (!data.success) {
           dispatch({ type: 'SET_ERROR', error: data.error });
           return;
         }
 
-        dispatch({ type: 'SET_RULES', rules: data.ruleSet });
+        dispatch({ type: 'SET_RULES', rules: (data as ParseResponse & { success: true }).ruleSet });
         dispatch({ type: 'SET_PHASE', phase: 'confirming' });
       } catch {
         dispatch({
@@ -215,7 +226,7 @@ export default function Home() {
         });
       }
     },
-    []
+    [startRateLimitCountdown]
   );
 
   // ── Handle confirm (run backtest) ─────────────────────────────────────
@@ -372,8 +383,14 @@ export default function Home() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt, asset: state.config.asset, timeframe: '1D' }),
         });
-        const data: ParseResponse = await res.json();
+        const data = await res.json();
         setIsComparing(false);
+
+        if (res.status === 429 && data.retryAfter) {
+          setRateLimitType(data.limitType ?? 'minute');
+          startRateLimitCountdown(data.retryAfter);
+          return;
+        }
 
         if (!data.success) {
           dispatch({ type: 'SET_ERROR', error: data.error });
@@ -389,7 +406,7 @@ export default function Home() {
         });
       }
     },
-    [state.config.asset, handleCompare]
+    [state.config.asset, handleCompare, startRateLimitCountdown]
   );
 
   // ── Load shared config from URL ────────────────────────────────────
@@ -566,7 +583,20 @@ export default function Home() {
                 config={state.config}
                 onConfigChange={handleConfigChange}
                 isParsing={false}
+                rateLimitSeconds={rateLimitSeconds}
               />
+
+              {/* Rate limit banner */}
+              {rateLimitSeconds > 0 && (
+                <div className="mt-4">
+                  <RateLimitBanner
+                    retryAfter={rateLimitSeconds}
+                    limitType={rateLimitType}
+                    onExpired={clearRateLimit}
+                    onBrowsePresets={() => setPanelOpen(true)}
+                  />
+                </div>
+              )}
 
               {/* Browse presets link */}
               <button
