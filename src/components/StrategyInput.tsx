@@ -241,7 +241,7 @@ export function StrategyInput({
                 onConfigChange({ ...config, asset: value as AssetSymbol })
               }
             >
-              <SelectTrigger className="h-6 w-full border-0 shadow-none bg-transparent p-0 text-sm text-slate-200 focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent">
+              <SelectTrigger className="data-[size=default]:h-6 w-full border-0 shadow-none bg-transparent p-0 text-sm text-slate-200 focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="border-vt-line">
