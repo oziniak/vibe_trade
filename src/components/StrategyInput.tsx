@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 const ASSETS: AssetSymbol[] = ['BTC', 'ETH', 'SOL', 'BNB', 'XRP', 'DOGE', 'ADA', 'AVAX'];
@@ -202,7 +203,7 @@ export function StrategyInput({
               bg-transparent hover:bg-vt/[0.05]
               border border-vt-line/40 hover:border-vt/25
               rounded-full px-3 py-1.5 transition-all duration-150
-              max-w-[260px] truncate"
+              max-w-[260px] truncate cursor-pointer"
           >
             {example}
           </button>
@@ -226,7 +227,7 @@ export function StrategyInput({
               <SelectTrigger className="h-6 w-full border-0 shadow-none bg-transparent p-0 text-sm text-slate-200 focus-visible:ring-0 dark:bg-transparent dark:hover:bg-transparent">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-vt-bg3 border-vt-line">
+              <SelectContent className="border-vt-line">
                 {ASSETS.map((asset) => (
                   <SelectItem
                     key={asset}
@@ -240,8 +241,34 @@ export function StrategyInput({
             </Select>
           </div>
 
-          {/* Capital */}
+          {/* Start Date */}
           <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
+              From
+            </label>
+            <DatePicker
+              value={config.startDate}
+              onChange={(date) =>
+                onConfigChange({ ...config, startDate: date })
+              }
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
+            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
+              To
+            </label>
+            <DatePicker
+              value={config.endDate}
+              onChange={(date) =>
+                onConfigChange({ ...config, endDate: date })
+              }
+            />
+          </div>
+
+          {/* Capital */}
+          <div className="px-3 py-2.5 col-span-1 border-b sm:border-b-0 border-vt-line/30">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Capital
             </label>
@@ -262,36 +289,6 @@ export function StrategyInput({
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
-          </div>
-
-          {/* Start Date */}
-          <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
-            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
-              From
-            </label>
-            <input
-              type="date"
-              value={config.startDate}
-              onChange={(e) =>
-                onConfigChange({ ...config, startDate: e.target.value })
-              }
-              className="h-6 w-full min-w-0 bg-transparent text-[13px] sm:text-sm text-slate-200 border-none p-0 outline-none [color-scheme:dark]"
-            />
-          </div>
-
-          {/* End Date */}
-          <div className="px-3 py-2.5 col-span-1 border-b sm:border-b-0 border-vt-line/30">
-            <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
-              To
-            </label>
-            <input
-              type="date"
-              value={config.endDate}
-              onChange={(e) =>
-                onConfigChange({ ...config, endDate: e.target.value })
-              }
-              className="h-6 w-full min-w-0 bg-transparent text-[13px] sm:text-sm text-slate-200 border-none p-0 outline-none [color-scheme:dark]"
-            />
           </div>
 
           {/* Fee */}

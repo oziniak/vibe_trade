@@ -140,6 +140,8 @@
   --vt-bg-2: #07150a;
   --vt-bg-3: #0c1e10;
   --vt-line: #163322;
+  --popover: #0c1e10;
+  --popover-foreground: oklch(0.985 0 0);
 }
 
 /* Warm Amber — Bloomberg terminal, desk lamp glow */
@@ -154,6 +156,8 @@
   --vt-bg-2: #151008;
   --vt-bg-3: #1e180d;
   --vt-line: #332814;
+  --popover: #1e180d;
+  --popover-foreground: oklch(0.985 0 0);
 }
 
 /* Arctic Cyan — deep water, cool monitors */
@@ -168,6 +172,8 @@
   --vt-bg-2: #081319;
   --vt-bg-3: #0d1c25;
   --vt-line: #16303d;
+  --popover: #0d1c25;
+  --popover-foreground: oklch(0.985 0 0);
 }
 
 /* Copper & Slate — firelit study */
@@ -182,6 +188,8 @@
   --vt-bg-2: #16100c;
   --vt-bg-3: #1f1914;
   --vt-line: #352820;
+  --popover: #1f1914;
+  --popover-foreground: oklch(0.985 0 0);
 }
 
 @layer base {
@@ -194,21 +202,6 @@
   }
 }
 
-/* ── Mobile date input fix ─────────────────────────────────── */
-input[type="date"] {
-  min-width: 0;
-}
-@media (max-width: 639px) {
-  input[type="date"]::-webkit-date-and-time-value {
-    text-align: left;
-  }
-  input[type="date"]::-webkit-datetime-edit {
-    padding: 0;
-  }
-  input[type="date"]::-webkit-datetime-edit-fields-wrapper {
-    padding: 0;
-  }
-}
 
 /* ── Dark-mode scrollbar ─────────────────────────────────────── */
 .dark ::-webkit-scrollbar {
@@ -236,6 +229,21 @@ input[type="date"] {
   transition: background-color 0.15s ease, border-color 0.15s ease,
     color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
+
+/* ── Cursor pointer for all clickable elements ───────────────── */
+button:not(:disabled),
+a[href],
+[role="button"]:not(:disabled),
+[role="radio"],
+[role="tab"],
+[role="option"],
+[role="menuitem"],
+[data-slot="select-trigger"],
+[data-slot="select-item"],
+label[for] {
+  cursor: pointer;
+}
+
 
 /* ── Tabular numbers for metric displays ─────────────────────── */
 .tabular-nums {

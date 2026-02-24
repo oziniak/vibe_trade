@@ -65,7 +65,7 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
           )}
           <button
             onClick={onClose}
-            className="ml-auto p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-vt-bg3/60 transition-colors"
+            className="ml-auto p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-vt-bg3/60 transition-colors cursor-pointer"
             aria-label="Close panel"
           >
             <X className="size-4" />
