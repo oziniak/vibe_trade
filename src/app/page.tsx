@@ -478,7 +478,7 @@ export default function Home() {
   return (
     <ErrorBoundary>
     <div className="min-h-screen bg-vt-bg1 isolate overflow-x-hidden">
-      <BackgroundShader />
+      <BackgroundShader dimmed={!!showResults} />
       {/* Header */}
       <header className="border-b border-vt-line bg-vt-bg1/90 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">

@@ -1,35 +1,11 @@
 'use client';
 
-import { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import { useTheme, ACCENT_HEX } from '@/lib/theme';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-/** Single candlestick with normalised prices (0–1). */
-interface Candle {
-  o: number;
-  c: number;
-  h: number;
-  l: number;
-}
-
-/** A horizontal strip of candlestick data that drifts leftward. */
-interface Strip {
-  x: number;
-  baseY: number;
-  candles: Candle[];
-  opacity: number;
-  height: number;
-  candleW: number;
-  gap: number;
-  speed: number;
-  oscAmp: number;
-  oscFreq: number;
-  oscPhase: number;
-  totalW: number;
-}
 
 /** Candlestick-inspired particle. */
 interface Particle {
@@ -62,60 +38,6 @@ const BEAR_RED_BRIGHT = { r: 252, g: 129, b: 129 }; // brighter for sparks
 // Data generation
 // ---------------------------------------------------------------------------
 
-function genCandles(n: number): Candle[] {
-  const out: Candle[] = [];
-  let p = 0.3 + Math.random() * 0.4;
-  const drift = (Math.random() - 0.5) * 0.0015;
-
-  for (let i = 0; i < n; i++) {
-    const vol = 0.012 + Math.random() * 0.035;
-    const move = drift + (Math.random() - 0.5) * vol;
-    const o = p;
-    const c = Math.max(0.05, Math.min(0.95, p + move));
-    const wUp = Math.random() * vol * 0.6;
-    const wDn = Math.random() * vol * 0.6;
-    out.push({
-      o,
-      c,
-      h: Math.min(1, Math.max(o, c) + wUp),
-      l: Math.max(0, Math.min(o, c) - wDn),
-    });
-    p = c;
-    if (p > 0.85) p -= 0.04;
-    if (p < 0.15) p += 0.04;
-  }
-  return out;
-}
-
-function makeStrip(
-  vw: number,
-  vh: number,
-  idx: number,
-  total: number
-): Strip {
-  const depth = Math.random();
-  const candleW = Math.max(2, Math.round(2 + depth * 5));
-  const gap = Math.max(1, Math.round(1 + Math.random() * 1.5));
-  const step = candleW + gap;
-  const count = Math.ceil((vw * 1.6) / step) + 20;
-  const band = vh / (total + 1);
-
-  return {
-    x: -Math.random() * count * step * 0.3,
-    baseY: band * (idx + 1) + (Math.random() - 0.5) * band * 0.4,
-    candles: genCandles(count),
-    opacity: 0.06 + depth * 0.09, // boosted from 0.035 + depth * 0.055
-    height: (30 + depth * 50) * (0.3 + depth * 0.9),
-    candleW,
-    gap,
-    speed: 0.12 + (1 - depth) * 0.28 + Math.random() * 0.1,
-    oscAmp: 2 + Math.random() * 6,
-    oscFreq: 0.0004 + Math.random() * 0.0008,
-    oscPhase: Math.random() * Math.PI * 2,
-    totalW: count * step,
-  };
-}
-
 function makeParticle(vw: number, vh: number): Particle {
   const bull = Math.random() > 0.5;
   const typeRoll = Math.random();
@@ -147,7 +69,7 @@ function makeParticle(vw: number, vh: number): Particle {
           : 0.08 + Math.random() * 0.18,
     phase: Math.random() * Math.PI * 2,
     life: 1,
-    maxLife: 8000 + Math.random() * 12000,
+    maxLife: 120000 + Math.random() * 60000, // 120–180s so particles cross the full viewport
     bodyRatio: 0.4 + Math.random() * 0.3,
     wickRatio: 0.15 + Math.random() * 0.2,
   };
@@ -280,68 +202,6 @@ function paintGlow(
     );
     ctx.fillStyle = gr;
     ctx.fillRect(0, 0, w, h);
-  }
-}
-
-function paintStrip(
-  ctx: CanvasRenderingContext2D,
-  s: Strip,
-  t: number,
-  rgb: [number, number, number],
-  vw: number
-) {
-  const yOff = Math.sin(t * s.oscFreq + s.oscPhase) * s.oscAmp;
-  const cy = s.baseY + yOff;
-  const step = s.candleW + s.gap;
-
-  let px = s.x;
-  for (const cd of s.candles) {
-    if (px > vw + 20) break;
-    if (px + s.candleW < -20) {
-      px += step;
-      continue;
-    }
-
-    // Fade at viewport edges
-    const nx = px / vw;
-    const fade = Math.pow(Math.max(0, Math.sin(nx * Math.PI)), 0.6);
-    const alpha = s.opacity * fade;
-    if (alpha < 0.003) {
-      px += step;
-      continue;
-    }
-
-    const bull = cd.c >= cd.o;
-    // Use red/green for candles instead of monochrome accent
-    const col = bull ? BULL_GREEN : BEAR_RED;
-    // Blend with accent: 60% candle color, 40% accent
-    const [ar, ag, ab] = rgb;
-    const mr = Math.round(col.r * 0.6 + ar * 0.4);
-    const mg = Math.round(col.g * 0.6 + ag * 0.4);
-    const mb = Math.round(col.b * 0.6 + ab * 0.4);
-
-    const py = (p: number) => cy + s.height * (0.5 - p);
-    const hY = py(cd.h);
-    const lY = py(cd.l);
-    const oY = py(cd.o);
-    const cY = py(cd.c);
-    const bodyTop = Math.min(oY, cY);
-    const bodyH = Math.max(Math.abs(oY - cY), 0.8);
-
-    // Wick
-    ctx.strokeStyle = `rgba(${mr},${mg},${mb},${alpha * 0.55})`;
-    ctx.lineWidth = Math.max(0.5, s.candleW * 0.15);
-    ctx.beginPath();
-    ctx.moveTo(px + s.candleW * 0.5, hY);
-    ctx.lineTo(px + s.candleW * 0.5, lY);
-    ctx.stroke();
-
-    // Body — bull is filled, bear is slightly less opaque
-    const bAlpha = bull ? alpha * 1.1 : alpha * 0.7;
-    ctx.fillStyle = `rgba(${mr},${mg},${mb},${bAlpha})`;
-    ctx.fillRect(px, bodyTop, s.candleW, bodyH);
-
-    px += step;
   }
 }
 
@@ -523,7 +383,7 @@ function paintParticles(
 // Component
 // ---------------------------------------------------------------------------
 
-function BackgroundShaderInner() {
+function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
   const cvRef = useRef<HTMLCanvasElement>(null);
   const noiseRef = useRef<HTMLDivElement>(null);
   const { theme } = useTheme();
@@ -554,12 +414,8 @@ function BackgroundShaderInner() {
     cv.width = vw;
     cv.height = vh;
 
-    const STRIP_N = Math.max(3, Math.min(6, Math.floor(vw / 250)));
-    const PARTICLE_N = Math.max(20, Math.floor((vw * vh) / 28000));
+    const PARTICLE_N = Math.max(25, Math.floor((vw * vh) / 18000));
 
-    let strips: Strip[] = Array.from({ length: STRIP_N }, (_, i) =>
-      makeStrip(vw, vh, i, STRIP_N)
-    );
     let particles: Particle[] = Array.from({ length: PARTICLE_N }, () =>
       makeParticle(vw, vh)
     );
@@ -569,8 +425,6 @@ function BackgroundShaderInner() {
       vh = window.innerHeight;
       cv.width = vw;
       cv.height = vh;
-      const n = Math.max(3, Math.min(6, Math.floor(vw / 250)));
-      strips = Array.from({ length: n }, (_, i) => makeStrip(vw, vh, i, n));
     };
     window.addEventListener('resize', onResize);
 
@@ -599,21 +453,7 @@ function BackgroundShaderInner() {
       // Layer 1 — gradient glow (enhanced)
       paintGlow(ctx, vw, vh, now, rgb);
 
-      // Layer 2 — candlestick strips (red/green)
-      if (!slow) {
-        for (const s of strips) {
-          s.x -= s.speed * (dt / 16);
-          if (s.x + s.totalW < -50) {
-            s.x = vw + Math.random() * 100;
-            s.candles = genCandles(s.candles.length);
-          }
-        }
-      }
-      for (const s of strips) {
-        paintStrip(ctx, s, now, rgb, vw);
-      }
-
-      // Layer 3 — candlestick-inspired particles
+      // Layer 2 — candlestick-inspired particles
       if (!slow) {
         for (const p of particles) {
           p.x += p.vx * (dt / 16);
@@ -654,22 +494,24 @@ function BackgroundShaderInner() {
   }, []);
 
   return (
-    <>
-      {/* Canvas: gradient glow + candlestick strips + particles */}
+    <div
+      className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-700 ease-in-out"
+      style={{ opacity: dimmed ? 0.18 : 1 }}
+      aria-hidden="true"
+    >
+      {/* Canvas: gradient glow + particles */}
       <canvas
         ref={cvRef}
-        className="fixed inset-0 z-0 pointer-events-none w-full h-full"
-        aria-hidden="true"
+        className="absolute inset-0 w-full h-full"
       />
       {/* Static noise grain overlay */}
       <div
         ref={noiseRef}
-        className="fixed inset-0 z-[1] pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03]"
         style={{ backgroundRepeat: 'repeat', backgroundSize: '128px' }}
-        aria-hidden="true"
       />
-    </>
+    </div>
   );
 }
 
-export const BackgroundShader = memo(BackgroundShaderInner);
+export const BackgroundShader = memo(BackgroundShaderInner) as React.NamedExoticComponent<{ dimmed?: boolean }>;
