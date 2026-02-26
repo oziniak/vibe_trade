@@ -72,7 +72,7 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
           timeVisible: false,
           fixLeftEdge: true,
           fixRightEdge: true,
-          minBarSpacing: 1,
+          minBarSpacing: 0.5,
         },
         rightPriceScale: {
           borderColor: '#334155',
@@ -301,7 +301,16 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         }
       }
 
-      chart.timeScale().fitContent();
+      // Start slightly zoomed in so user can discover zoom-out
+      const totalBars = chartData.length;
+      if (totalBars > 30) {
+        chart.timeScale().setVisibleLogicalRange({
+          from: Math.floor(totalBars * 0.2),
+          to: totalBars - 1,
+        });
+      } else {
+        chart.timeScale().fitContent();
+      }
 
       const container = containerRef.current!;
       const resizeObserver = new ResizeObserver((entries) => {
