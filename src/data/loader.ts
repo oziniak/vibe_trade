@@ -3,7 +3,6 @@ import type { AssetSymbol } from '@/types/strategy';
 
 const cache = new Map<AssetSymbol, Candle[]>();
 
-/** Load OHLCV data for an asset, caching in memory */
 export async function loadCandles(asset: AssetSymbol): Promise<Candle[]> {
   const cached = cache.get(asset);
   if (cached) return cached;
@@ -17,7 +16,6 @@ export async function loadCandles(asset: AssetSymbol): Promise<Candle[]> {
   return candles;
 }
 
-/** Clear the candle cache */
 export function clearCandleCache(): void {
   cache.clear();
 }

@@ -3,11 +3,7 @@
 import React, { useEffect, useRef, memo } from 'react';
 import { useTheme, ACCENT_HEX } from '@/lib/theme';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-/** Candlestick-inspired particle. */
+// Candlestick-inspired particle.
 interface Particle {
   x: number;
   y: number;
@@ -25,18 +21,10 @@ interface Particle {
   wickRatio: number; // wick extension ratio
 }
 
-// ---------------------------------------------------------------------------
-// Colors — stock exchange inspired
-// ---------------------------------------------------------------------------
-
 const BULL_GREEN = { r: 34, g: 197, b: 94 }; // #22c55e
 const BEAR_RED = { r: 239, g: 68, b: 68 }; // #ef4444
 const BULL_GREEN_BRIGHT = { r: 74, g: 222, b: 128 }; // brighter for sparks
 const BEAR_RED_BRIGHT = { r: 252, g: 129, b: 129 }; // brighter for sparks
-
-// ---------------------------------------------------------------------------
-// Data generation
-// ---------------------------------------------------------------------------
 
 function makeParticle(vw: number, vh: number): Particle {
   const bull = Math.random() > 0.5;
@@ -75,10 +63,6 @@ function makeParticle(vw: number, vh: number): Particle {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function hexRgb(hex: string): [number, number, number] {
   return [
     parseInt(hex.slice(1, 3), 16),
@@ -105,10 +89,6 @@ function genNoiseUrl(): string {
   cx.putImageData(img, 0, 0);
   return cv.toDataURL();
 }
-
-// ---------------------------------------------------------------------------
-// Rendering
-// ---------------------------------------------------------------------------
 
 function paintGlow(
   ctx: CanvasRenderingContext2D,
@@ -241,7 +221,6 @@ function paintParticles(
       const wickExt = totalH * p.wickRatio; // wick beyond body
       const bodyY = p.y - bodyH / 2;
 
-      // Soft glow halo behind the candle
       const glowR = p.size * 3.5;
       const glow = ctx.createRadialGradient(
         p.x,
@@ -271,7 +250,6 @@ function paintParticles(
         glowR * 2
       );
 
-      // Wick (thin vertical line through the candle)
       ctx.strokeStyle = `rgba(${col.r},${col.g},${col.b},${a * 0.7})`;
       ctx.lineWidth = Math.max(1, w * 0.12);
       ctx.beginPath();
@@ -279,27 +257,23 @@ function paintParticles(
       ctx.lineTo(p.x, bodyY + bodyH + wickExt);
       ctx.stroke();
 
-      // Body (solid rectangle with rounded corners for polish)
       const cornerR = Math.min(2, w * 0.15);
       ctx.fillStyle = `rgba(${bright.r},${bright.g},${bright.b},${a})`;
       ctx.beginPath();
       ctx.roundRect(p.x - w / 2, bodyY, w, bodyH, cornerR);
       ctx.fill();
 
-      // Body border for definition
       ctx.strokeStyle = `rgba(${bright.r},${bright.g},${bright.b},${a * 0.4})`;
       ctx.lineWidth = 0.5;
       ctx.beginPath();
       ctx.roundRect(p.x - w / 2, bodyY, w, bodyH, cornerR);
       ctx.stroke();
     } else if (p.type === 'spark') {
-      // Small bright spark with trail
       const trailLen = 4 + p.size * 2;
       const angle = Math.atan2(p.vy, p.vx);
       const tx = p.x - Math.cos(angle) * trailLen;
       const ty = p.y - Math.sin(angle) * trailLen;
 
-      // Trail
       const trail = ctx.createLinearGradient(tx, ty, p.x, p.y);
       trail.addColorStop(
         0,
@@ -316,7 +290,6 @@ function paintParticles(
       ctx.lineTo(p.x, p.y);
       ctx.stroke();
 
-      // Head glow
       const headGlow = ctx.createRadialGradient(
         p.x,
         p.y,
@@ -338,13 +311,11 @@ function paintParticles(
       ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bright core
       ctx.fillStyle = `rgba(${bright.r},${bright.g},${bright.b},${a})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size * 0.5, 0, Math.PI * 2);
       ctx.fill();
     } else {
-      // Orb — glowing circle with soft halo
       const orbGlow = ctx.createRadialGradient(
         p.x,
         p.y,
@@ -370,7 +341,6 @@ function paintParticles(
       ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bright core
       ctx.fillStyle = `rgba(255,255,255,${a * 0.3})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size * 0.4, 0, Math.PI * 2);
@@ -378,10 +348,6 @@ function paintParticles(
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
   const cvRef = useRef<HTMLCanvasElement>(null);
@@ -394,7 +360,6 @@ function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
     themeRef.current = theme;
   }, [theme]);
 
-  // Noise texture (once)
   useEffect(() => {
     const el = noiseRef.current;
     if (!el) return;
@@ -402,7 +367,6 @@ function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
     if (url) el.style.backgroundImage = `url(${url})`;
   }, []);
 
-  // Main animation loop
   useEffect(() => {
     const cv = cvRef.current;
     if (!cv) return;
@@ -416,7 +380,7 @@ function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
 
     const PARTICLE_N = Math.max(25, Math.floor((vw * vh) / 18000));
 
-    let particles: Particle[] = Array.from({ length: PARTICLE_N }, () =>
+    const particles: Particle[] = Array.from({ length: PARTICLE_N }, () =>
       makeParticle(vw, vh)
     );
 
@@ -490,7 +454,6 @@ function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
       window.removeEventListener('resize', onResize);
       document.removeEventListener('visibilitychange', onVis);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -499,12 +462,10 @@ function BackgroundShaderInner({ dimmed = false }: { dimmed?: boolean }) {
       style={{ opacity: dimmed ? 0.18 : 1 }}
       aria-hidden="true"
     >
-      {/* Canvas: gradient glow + particles */}
       <canvas
         ref={cvRef}
         className="absolute inset-0 w-full h-full"
       />
-      {/* Static noise grain overlay */}
       <div
         ref={noiseRef}
         className="absolute inset-0 opacity-[0.03]"

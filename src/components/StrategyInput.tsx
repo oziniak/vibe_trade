@@ -73,7 +73,6 @@ export function StrategyInput({
     return () => clearTimeout(timer);
   }, [speechError]);
 
-  // --- Validation ---
   const validationErrors: string[] = [];
   if (config.initialCapital <= 0) {
     validationErrors.push('Initial capital must be greater than 0.');
@@ -111,7 +110,6 @@ export function StrategyInput({
 
   return (
     <div className="w-full max-w-[680px] mx-auto space-y-4">
-      {/* ── Command Bar ────────────────────────────────────────────── */}
       <div
         className="relative rounded-2xl border border-vt/15 bg-vt-bg2/50
           shadow-[0_0_80px_-20px_var(--vt-glow)]
@@ -131,7 +129,6 @@ export function StrategyInput({
             ${isSupported ? 'pr-12' : ''}`}
         />
 
-        {/* Mic button overlay (top-right of textarea) */}
         {isSupported && (
           <button
             type="button"
@@ -156,7 +153,6 @@ export function StrategyInput({
           </button>
         )}
 
-        {/* Bottom action bar */}
         <div className="flex items-center justify-between px-4 pb-3 pt-1">
           <div className="flex items-center gap-2">
             {isListening && (
@@ -219,7 +215,6 @@ export function StrategyInput({
         </div>
       )}
 
-      {/* ── Example Prompts ──────────────────────────────────────── */}
       <div className="flex flex-wrap gap-1.5 justify-center px-2">
         {EXAMPLE_PROMPTS.map((example) => (
           <button
@@ -236,10 +231,8 @@ export function StrategyInput({
         ))}
       </div>
 
-      {/* ── Config Controls (Booking Style) ──────────────────────── */}
       <div className="rounded-xl border border-vt/10 bg-vt-bg2/30 overflow-hidden">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-x divide-vt/[0.06]">
-          {/* Asset */}
           <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Asset
@@ -267,7 +260,6 @@ export function StrategyInput({
             </Select>
           </div>
 
-          {/* Start Date */}
           <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               From
@@ -280,7 +272,6 @@ export function StrategyInput({
             />
           </div>
 
-          {/* End Date */}
           <div className="px-3 py-2.5 col-span-1 border-b lg:border-b-0 border-vt-line/30">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               To
@@ -293,7 +284,6 @@ export function StrategyInput({
             />
           </div>
 
-          {/* Capital */}
           <div className="px-3 py-2.5 col-span-1 border-b sm:border-b-0 border-vt-line/30">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Capital
@@ -317,7 +307,6 @@ export function StrategyInput({
             </div>
           </div>
 
-          {/* Fee */}
           <div className="px-3 py-2.5 col-span-1">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Fee
@@ -341,7 +330,6 @@ export function StrategyInput({
             </div>
           </div>
 
-          {/* Slippage */}
           <div className="px-3 py-2.5 col-span-1">
             <label className="text-[10px] text-vt-dim/60 uppercase tracking-wider font-medium block mb-1">
               Slippage
@@ -367,7 +355,6 @@ export function StrategyInput({
         </div>
       </div>
 
-      {/* Validation errors */}
       {hasValidationErrors && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-1">
           {validationErrors.map((err, i) => (

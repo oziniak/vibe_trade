@@ -21,7 +21,6 @@ function getClientIp(request: NextRequest): string {
 
 export async function POST(request: NextRequest) {
   try {
-    // ── Rate limit ────────────────────────────────────────────────────
     const ip = getClientIp(request);
     const rl = await checkRateLimit(ip);
 
@@ -48,7 +47,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ── Parse request ─────────────────────────────────────────────────
     const body = await request.json();
     const parsed = RequestSchema.safeParse(body);
 

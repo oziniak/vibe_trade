@@ -1,6 +1,5 @@
 import type { BacktestResult, Trade } from '@/types/results';
 
-/** Export trades as CSV string */
 export function tradesToCSV(trades: Trade[]): string {
   const header = 'ID,Entry Date,Entry Price,Exit Date,Exit Price,P&L ($),P&L (%),Holding Days,Exit Reason,Position Size';
 
@@ -22,12 +21,10 @@ export function tradesToCSV(trades: Trade[]): string {
   return [header, ...rows].join('\n');
 }
 
-/** Export full result as JSON string */
 export function resultToJSON(result: BacktestResult): string {
   return JSON.stringify(result, null, 2);
 }
 
-/** Generate a shareable URL with compressed config */
 export function generateShareURL(result: BacktestResult): string {
   const sharePayload = {
     rules: result.config.rules,
@@ -45,7 +42,6 @@ export function generateShareURL(result: BacktestResult): string {
   return window.location.origin + window.location.pathname + '?share=' + encodeURIComponent(base64);
 }
 
-/** Decode a share URL payload */
 export function decodeShareURL(encoded: string): {
   rules: BacktestResult['config']['rules'];
   asset: BacktestResult['config']['asset'];
@@ -63,7 +59,6 @@ export function decodeShareURL(encoded: string): {
   }
 }
 
-/** Trigger a file download in the browser */
 export function downloadFile(content: string, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

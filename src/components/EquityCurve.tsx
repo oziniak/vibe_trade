@@ -30,10 +30,6 @@ function useIsMobile(breakpoint = 640) {
   return isMobile;
 }
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 interface EquityCurveProps {
   equityCurve: EquityPoint[];
 }
@@ -52,17 +48,11 @@ interface CustomTooltipProps {
   accentColor?: string;
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Format a date string (YYYY-MM-DD) to "MMM YYYY" for axis ticks. */
 function formatDateShort(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 }
 
-/** Format a date string (YYYY-MM-DD) to a more readable tooltip format. */
 function formatDateFull(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   return date.toLocaleDateString('en-US', {
@@ -72,18 +62,10 @@ function formatDateFull(dateStr: string): string {
   });
 }
 
-/**
- * Compute a reasonable tick interval so axis labels don't overlap.
- * Targets roughly 8-12 visible ticks on the axis.
- */
 function computeTickInterval(dataLength: number): number {
   if (dataLength <= 12) return 1;
   return Math.ceil(dataLength / 10);
 }
-
-// ---------------------------------------------------------------------------
-// Custom Tooltip
-// ---------------------------------------------------------------------------
 
 function EquityTooltip({ active, payload, label, accentColor }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0 || !label) return null;
@@ -180,10 +162,6 @@ function DrawdownTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Custom Legend
-// ---------------------------------------------------------------------------
-
 function EquityLegend({ accentColor }: { accentColor?: string }) {
   return (
     <div className="flex items-center justify-center gap-5 pt-1 pb-2">
@@ -205,15 +183,10 @@ function EquityLegend({ accentColor }: { accentColor?: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Main Component
-// ---------------------------------------------------------------------------
-
 export function EquityCurve({ equityCurve }: EquityCurveProps) {
   const isMobile = useIsMobile();
   const { accentHex } = useTheme();
 
-  // ── Empty state ──────────────────────────────────────────────────────
   if (!equityCurve || equityCurve.length === 0) {
     return (
       <div className="flex items-center justify-center h-[280px] sm:h-[400px] rounded-lg border border-vt-line/50 bg-vt-bg2/50">
@@ -238,7 +211,6 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
 
   return (
     <div className="w-full space-y-0">
-      {/* ── Equity Chart (top, 70%) ─────────────────────────────────────── */}
       <div className="rounded-t-lg border border-vt-line/50 overflow-hidden">
         <ResponsiveContainer width="100%" height={equityHeight}>
           <ComposedChart
@@ -285,7 +257,6 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
 
             <Legend content={<EquityLegend accentColor={accentHex} />} />
 
-            {/* Strategy equity - area with gradient fill */}
             <Area
               type="monotone"
               dataKey="equity"
@@ -302,7 +273,6 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
               }}
             />
 
-            {/* Benchmark equity - dashed line, no fill */}
             <Line
               type="monotone"
               dataKey="benchmarkEquity"
@@ -322,7 +292,6 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
         </ResponsiveContainer>
       </div>
 
-      {/* ── Drawdown Chart (bottom, 30%) ────────────────────────────────── */}
       <div className="rounded-b-lg border border-t-0 border-vt-line/50 overflow-hidden">
         <ResponsiveContainer width="100%" height={drawdownHeight}>
           <ComposedChart
@@ -375,7 +344,6 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
 
             <ReferenceLine y={0} stroke="#334155" strokeWidth={1} />
 
-            {/* Strategy drawdown area - fills downward from 0 */}
             <Area
               type="monotone"
               dataKey="drawdownPct"
@@ -393,7 +361,6 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
               }}
             />
 
-            {/* Benchmark drawdown - dashed line, no fill */}
             <Line
               type="monotone"
               dataKey="benchmarkDrawdownPct"

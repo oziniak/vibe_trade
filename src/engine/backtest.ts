@@ -8,7 +8,6 @@ import type {
 } from '@/types/results';
 import type {
   StrategyRuleSet,
-  ConditionGroup,
   Condition,
   IndicatorSpec,
   Operand,
@@ -27,10 +26,6 @@ import {
   computePctChange,
 } from '@/indicators/index';
 
-// ---------------------------------------------------------------------------
-// Indicator collection
-// ---------------------------------------------------------------------------
-
 /** Position-scope indicator types that are computed at runtime, not pre-cached */
 const POSITION_SCOPE_TYPES = new Set(['pnl_pct', 'bars_in_trade']);
 
@@ -43,7 +38,6 @@ const CANDLE_DIRECT_TYPES = new Set([
   'volume',
 ]);
 
-/** Extract all unique IndicatorSpecs from entry + exit conditions */
 function collectIndicators(rules: StrategyRuleSet): IndicatorSpec[] {
   const seen = new Set<string>();
   const specs: IndicatorSpec[] = [];
@@ -76,11 +70,6 @@ function collectIndicators(rules: StrategyRuleSet): IndicatorSpec[] {
   return specs;
 }
 
-// ---------------------------------------------------------------------------
-// Warmup calculation
-// ---------------------------------------------------------------------------
-
-/** Determine the warmup period based on indicator specs */
 function computeWarmup(specs: IndicatorSpec[]): number {
   let maxWarmup = 0;
 
@@ -137,11 +126,6 @@ function computeWarmup(specs: IndicatorSpec[]): number {
   return Math.max(maxWarmup, 0);
 }
 
-// ---------------------------------------------------------------------------
-// Indicator pre-computation
-// ---------------------------------------------------------------------------
-
-/** Get the source data array from candles based on source field */
 function getSourceData(candles: Candle[], source?: string): number[] {
   switch (source) {
     case 'open':
@@ -156,7 +140,6 @@ function getSourceData(candles: Candle[], source?: string): number[] {
   }
 }
 
-/** Pre-compute all required indicators and return cache */
 function precomputeIndicators(
   candles: Candle[],
   specs: IndicatorSpec[],
@@ -239,10 +222,6 @@ function precomputeIndicators(
   return cache;
 }
 
-// ---------------------------------------------------------------------------
-// Empty result helper
-// ---------------------------------------------------------------------------
-
 function emptyMetrics(): PerformanceMetrics {
   return {
     totalReturn: 0,
@@ -283,11 +262,6 @@ function emptyResult(config: BacktestConfig): BacktestResult {
   };
 }
 
-// ---------------------------------------------------------------------------
-// Date helpers
-// ---------------------------------------------------------------------------
-
-/** Calendar days between two YYYY-MM-DD strings (absolute value) */
 function daysBetween(a: string, b: string): number {
   const msPerDay = 86_400_000;
   const da = new Date(a + 'T00:00:00Z');
@@ -295,16 +269,10 @@ function daysBetween(a: string, b: string): number {
   return Math.round(Math.abs(db.getTime() - da.getTime()) / msPerDay);
 }
 
-// ---------------------------------------------------------------------------
-// Main dispatcher
-// ---------------------------------------------------------------------------
-
-/** Main dispatcher */
 export function runBacktest(
   config: BacktestConfig,
   allCandles: Candle[],
 ): BacktestResult {
-  // 1. Filter candles to [startDate, endDate] range (inclusive)
   const candles = allCandles.filter(
     (c) => c.t >= config.startDate && c.t <= config.endDate,
   );
@@ -313,17 +281,12 @@ export function runBacktest(
     return emptyResult(config);
   }
 
-  // 2. Dispatch based on strategy mode
   if (config.rules.mode.type === 'dca') {
     return runDCABacktest(config, candles);
   }
 
   return runStandardBacktest(config, candles);
 }
-
-// ---------------------------------------------------------------------------
-// Standard-mode backtest
-// ---------------------------------------------------------------------------
 
 function runStandardBacktest(
   config: BacktestConfig,
@@ -333,12 +296,10 @@ function runStandardBacktest(
   const slippageFrac = slippageBps / 10_000;
   const feeFrac = feeBps / 10_000;
 
-  // 1. Collect indicators, compute warmup, precompute indicator cache
   const specs = collectIndicators(rules);
   const warmup = computeWarmup(specs);
   const cache = precomputeIndicators(candles, specs);
 
-  // 2. If warmup >= candles.length, return empty result with warning
   if (warmup >= candles.length) {
     return {
       config,
@@ -359,7 +320,6 @@ function runStandardBacktest(
     };
   }
 
-  // 3. Compute benchmark (from warmup candle onward)
   const tradableCandles = candles.slice(warmup);
   const benchmark = computeBenchmark(
     tradableCandles,
@@ -368,7 +328,6 @@ function runStandardBacktest(
     slippageBps,
   );
 
-  // Build lookups from date to benchmark equity and drawdown for the equity curve
   const benchmarkByDate = new Map<string, number>();
   const benchmarkDrawdownByDate = new Map<string, number>();
   for (const pt of benchmark.equityCurve) {
@@ -376,7 +335,6 @@ function runStandardBacktest(
     benchmarkDrawdownByDate.set(pt.date, pt.benchmarkDrawdownPct);
   }
 
-  // 4. Signal loop
   let capital = initialCapital;
   let position: OpenPosition | null = null;
   const trades: Trade[] = [];
@@ -384,13 +342,10 @@ function runStandardBacktest(
   let peak = initialCapital;
   let tradeId = 1;
 
-  // Track the total cost basis of current position (including entry fee)
   let positionCostBasis = 0;
 
   for (let i = warmup; i < candles.length; i++) {
-    // --- Entry / Exit signal processing ---
     if (position === null) {
-      // Check entry condition at candle i
       const entryFires = evaluateGroup(
         rules.entry,
         i,
@@ -400,7 +355,6 @@ function runStandardBacktest(
       );
 
       if (entryFires && i + 1 < candles.length) {
-        // Calculate position size
         let positionSize: number;
         if (rules.sizing.type === 'percent_equity') {
           positionSize = capital * (rules.sizing.valuePct / 100);
@@ -412,16 +366,9 @@ function runStandardBacktest(
         // Fill at open[i+1] with adverse slippage (price goes up for a buy)
         const fillPrice = candles[i + 1].o * (1 + slippageFrac);
 
-        // Fee on the notional
         const fee = positionSize * feeFrac;
-
-        // Net investable amount after fee
         const netInvestable = positionSize - fee;
-
-        // Units purchased
         const units = netInvestable / fillPrice;
-
-        // Total cost basis (what we subtract from capital)
         positionCostBasis = positionSize;
 
         position = {
@@ -435,7 +382,6 @@ function runStandardBacktest(
         capital -= positionSize;
       }
     } else {
-      // Check exit condition at candle i
       const evalPosition = {
         entryPrice: position.entryPrice,
         entryIndex: position.entryIndex,
@@ -453,16 +399,9 @@ function runStandardBacktest(
         // Fill at open[i+1] with adverse slippage (price goes down for a sell)
         const fillPrice = candles[i + 1].o * (1 - slippageFrac);
 
-        // Gross proceeds
         const grossProceeds = fillPrice * position.units;
-
-        // Exit fee
         const exitFee = grossProceeds * feeFrac;
-
-        // Net proceeds
         const netProceeds = grossProceeds - exitFee;
-
-        // PnL
         const pnlAbs = netProceeds - positionCostBasis;
         const pnlPct = (pnlAbs / positionCostBasis) * 100;
 
@@ -487,7 +426,6 @@ function runStandardBacktest(
       }
     }
 
-    // --- Mark-to-market equity ---
     let equity: number;
     if (position !== null) {
       equity = capital + position.units * candles[i].c;
@@ -512,7 +450,6 @@ function runStandardBacktest(
     });
   }
 
-  // 5. Force-close at last candle close if still in position
   if (position !== null) {
     const lastCandle = candles[candles.length - 1];
     const fillPrice = lastCandle.c * (1 - slippageFrac);
@@ -541,7 +478,6 @@ function runStandardBacktest(
     capital += netProceeds;
     position = null;
 
-    // Update the last equity point to reflect the force-close
     if (equityCurve.length > 0) {
       const lastEq = equityCurve[equityCurve.length - 1];
       lastEq.equity = capital;
@@ -552,11 +488,9 @@ function runStandardBacktest(
     }
   }
 
-  // 6. Compute metrics
   const tradableCount = candles.length - warmup;
   const metrics = computeMetrics(trades, equityCurve, initialCapital, tradableCount);
 
-  // 7. Build audit info
   const audit = buildAuditInfo({
     feeBps,
     slippageBps,
@@ -567,7 +501,6 @@ function runStandardBacktest(
     tradableCandles: tradableCount,
   });
 
-  // 8. Return result
   return {
     config,
     trades,
@@ -578,10 +511,6 @@ function runStandardBacktest(
     audit,
   };
 }
-
-// ---------------------------------------------------------------------------
-// DCA-mode backtest
-// ---------------------------------------------------------------------------
 
 function runDCABacktest(
   config: BacktestConfig,
@@ -598,10 +527,6 @@ function runDCABacktest(
   const feeFrac = feeBps / 10_000;
   const { intervalDays, amountUsd } = mode;
 
-  // 1. No warmup
-  const warmup = 0;
-
-  // 2. Compute benchmark from candle 0
   const benchmark = computeBenchmark(candles, initialCapital, feeBps, slippageBps);
   const benchmarkByDate = new Map<string, number>();
   const benchmarkDrawdownByDate = new Map<string, number>();
@@ -610,7 +535,6 @@ function runDCABacktest(
     benchmarkDrawdownByDate.set(pt.date, pt.benchmarkDrawdownPct);
   }
 
-  // 3. DCA loop
   let remainingCash = initialCapital;
   let totalUnits = 0;
   const trades: Trade[] = [];
@@ -618,7 +542,6 @@ function runDCABacktest(
   let peak = initialCapital;
   let tradeId = 1;
 
-  // Track individual DCA buy entries for trade records
   interface DCAEntry {
     date: string;
     fillPrice: number;
@@ -628,9 +551,7 @@ function runDCABacktest(
   const dcaEntries: DCAEntry[] = [];
 
   for (let i = 0; i < candles.length; i++) {
-    // Check if this is a buy day (every intervalDays candles)
     if (i % intervalDays === 0) {
-      // Fill at close[i] with adverse slippage
       const fillPrice = candles[i].c * (1 + slippageFrac);
       const fee = amountUsd * feeFrac;
       const totalCost = amountUsd + fee;
@@ -665,7 +586,6 @@ function runDCABacktest(
       // else: skip, no cash
     }
 
-    // Equity = totalUnits * close[i] + remainingCash
     const equity = totalUnits * candles[i].c + remainingCash;
 
     if (equity > peak) {
@@ -685,8 +605,7 @@ function runDCABacktest(
     });
   }
 
-  // 4. Build trade records for each DCA entry
-  //    Each DCA buy is recorded as a trade with exit at the last candle
+  // Each DCA buy is recorded as a trade with exit at the last candle
   const lastCandle = candles[candles.length - 1];
   for (const entry of dcaEntries) {
     const exitPrice = lastCandle.c;
@@ -708,10 +627,7 @@ function runDCABacktest(
     });
   }
 
-  // 5. Compute metrics
   const metrics = computeMetrics(trades, equityCurve, initialCapital, candles.length);
-
-  // 6. Build audit info
   const audit = buildAuditInfo({
     feeBps,
     slippageBps,
@@ -721,7 +637,6 @@ function runDCABacktest(
     totalCandles: candles.length,
     tradableCandles: candles.length,
   });
-  // Override position model for DCA
   audit.positionModel = 'DCA additive';
 
   return {

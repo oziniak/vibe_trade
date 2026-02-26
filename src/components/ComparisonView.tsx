@@ -33,10 +33,6 @@ function useIsMobile(breakpoint = 640) {
   return isMobile;
 }
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 interface ComparisonViewProps {
   resultA: BacktestResult;
   resultB: BacktestResult;
@@ -71,11 +67,6 @@ interface MetricComparisonDef {
   direction: ComparisonDirection;
 }
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-// COLOR_A and COLOR_B are now derived from theme in the component
 const COLOR_BENCHMARK = '#475569'; // slate
 
 const METRIC_COMPARISON_DEFS: MetricComparisonDef[] = [
@@ -171,17 +162,11 @@ const METRIC_COMPARISON_DEFS: MetricComparisonDef[] = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Format a date string (YYYY-MM-DD) to "MMM YY" for axis ticks. */
 function formatDateShort(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
 }
 
-/** Format a date string (YYYY-MM-DD) to a more readable tooltip format. */
 function formatDateFull(dateStr: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   return date.toLocaleDateString('en-US', {
@@ -191,17 +176,11 @@ function formatDateFull(dateStr: string): string {
   });
 }
 
-/** Compute a reasonable tick interval so axis labels don't overlap. */
 function computeTickInterval(dataLength: number): number {
   if (dataLength <= 12) return 1;
   return Math.ceil(dataLength / 10);
 }
 
-/**
- * Merge two equity curves by date into a single combined array.
- * Each point has: date, equityA, equityB, benchmarkEquity.
- * Benchmark is taken from strategy A (they share the same asset/period).
- */
 function mergeEquityCurves(
   curveA: EquityPoint[],
   curveB: EquityPoint[]
@@ -236,10 +215,6 @@ function mergeEquityCurves(
   return merged;
 }
 
-/**
- * Determine the delta arrow for a metric comparison.
- * Returns: { arrow, colorClass } where arrow is a unicode arrow and colorClass is a Tailwind class.
- */
 function getDeltaDisplay(
   valueA: number,
   valueB: number,
@@ -261,7 +236,6 @@ function getDeltaDisplay(
   }
 
   if (direction === 'higher_better') {
-    // A > B means A is better
     return delta > 0
       ? { arrow: '\u2191', colorClass: 'text-emerald-400', delta }
       : { arrow: '\u2193', colorClass: 'text-red-400', delta };
@@ -275,10 +249,6 @@ function getDeltaDisplay(
     ? { arrow: '\u2191', colorClass: 'text-emerald-400', delta }
     : { arrow: '\u2193', colorClass: 'text-red-400', delta };
 }
-
-// ---------------------------------------------------------------------------
-// Custom Tooltip
-// ---------------------------------------------------------------------------
 
 function ComparisonTooltip({ active, payload, label, colorA, colorB }: CustomTooltipProps & { colorA?: string; colorB?: string }) {
   if (!active || !payload || payload.length === 0 || !label) return null;
@@ -334,10 +304,6 @@ function ComparisonTooltip({ active, payload, label, colorA, colorB }: CustomToo
   );
 }
 
-// ---------------------------------------------------------------------------
-// Custom Legend
-// ---------------------------------------------------------------------------
-
 function ComparisonLegend({
   nameA,
   nameB,
@@ -375,10 +341,6 @@ function ComparisonLegend({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Overlaid Equity Curves Chart
-// ---------------------------------------------------------------------------
 
 function OverlaidEquityChart({
   data,
@@ -507,10 +469,6 @@ function OverlaidEquityChart({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Side-by-Side Metrics Table
-// ---------------------------------------------------------------------------
-
 function MetricsComparisonTable({
   metricsA,
   metricsB,
@@ -585,10 +543,6 @@ function MetricsComparisonTable({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Main ComparisonView Component
-// ---------------------------------------------------------------------------
 
 export function ComparisonView({ resultA, resultB }: ComparisonViewProps) {
   const { accentHex, secondaryHex } = useTheme();

@@ -103,7 +103,6 @@ In ALL cases: output the BEST-EFFORT strategy within MVP constraints, and list e
 If the input is NOT a trading strategy: return confidenceScore: 0, parserConfidence: "low",
 empty conditions arrays, mode: { "type": "standard" }, and a warning explaining the issue.`;
 
-// Few-shot examples embedded in the system prompt
 const FEW_SHOT_EXAMPLES = `
 EXAMPLES:
 
@@ -132,7 +131,6 @@ export interface ParseError {
 
 export type ParseResponse = ParseResult | ParseError;
 
-/** Strip markdown code fences from a string */
 function stripFences(text: string): string {
   let s = text.trim();
   if (s.startsWith('```json')) s = s.slice(7);
@@ -141,7 +139,6 @@ function stripFences(text: string): string {
   return s.trim();
 }
 
-/** Parse a trading strategy prompt into a validated RuleSet */
 export async function parseStrategy(prompt: string): Promise<ParseResponse> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -170,7 +167,6 @@ export async function parseStrategy(prompt: string): Promise<ParseResponse> {
       const text = response.content[0].type === 'text' ? response.content[0].text : '';
       const cleaned = stripFences(text);
 
-      // Step 1: JSON.parse
       let parsed: unknown;
       try {
         parsed = JSON.parse(cleaned);
@@ -183,7 +179,6 @@ export async function parseStrategy(prompt: string): Promise<ParseResponse> {
         };
       }
 
-      // Step 2: Zod validation
       const zodResult = StrategyRuleSetSchema.safeParse(parsed);
       if (!zodResult.success) {
         if (attempt === 0) continue; // retry
@@ -196,7 +191,6 @@ export async function parseStrategy(prompt: string): Promise<ParseResponse> {
 
       const ruleSet = zodResult.data;
 
-      // Step 3: Invariant validation
       const invariants = validateRuleSetInvariants(ruleSet);
       if (!invariants.valid) {
         return {
@@ -206,7 +200,6 @@ export async function parseStrategy(prompt: string): Promise<ParseResponse> {
         };
       }
 
-      // Step 4: Confidence check
       const confidence = ruleSet.metadata?.confidenceScore ?? 0;
       if (confidence < 0.3) {
         return {
@@ -216,7 +209,6 @@ export async function parseStrategy(prompt: string): Promise<ParseResponse> {
         };
       }
 
-      // Add invariant warnings to metadata
       if (invariants.warnings.length > 0 && ruleSet.metadata) {
         ruleSet.metadata.warnings = [...ruleSet.metadata.warnings, ...invariants.warnings];
       }

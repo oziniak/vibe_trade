@@ -2,45 +2,26 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-/** Options for the useSpeechRecognition hook. */
 export interface UseSpeechRecognitionOptions {
-  /** Silence timeout in milliseconds before auto-stopping. Default: 3000. */
   silenceTimeoutMs?: number;
-  /** BCP 47 language tag. Default: 'en-US'. */
   lang?: string;
-  /** Called with each finalized transcript segment. Consumer appends to textarea. */
   onFinalTranscript: (transcript: string) => void;
 }
 
-/** Return value of the useSpeechRecognition hook. */
 export interface UseSpeechRecognitionReturn {
-  /** Whether the browser supports the Web Speech API. */
   isSupported: boolean;
-  /** Whether the recognizer is actively listening. */
   isListening: boolean;
-  /** Current interim (partial) transcript. Empty when not listening. */
   interimTranscript: string;
-  /** Human-readable error message, or null. Cleared on next startListening(). */
   error: string | null;
-  /** Start listening. No-op if unsupported or already listening. */
   startListening: () => void;
-  /** Stop listening and finalize transcript. No-op if not listening. */
   stopListening: () => void;
 }
 
-/**
- * Returns the SpeechRecognition constructor if available, or null.
- * SSR-safe: returns null when `window` is undefined.
- */
 function getSpeechRecognitionAPI(): typeof SpeechRecognition | null {
   if (typeof window === "undefined") return null;
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
-/**
- * Maps a SpeechRecognitionErrorEvent error code to a user-friendly message.
- * Returns null for non-critical errors that should be silently ignored.
- */
 function mapErrorToMessage(errorCode: string): string | null {
   switch (errorCode) {
     case "not-allowed":
@@ -61,16 +42,6 @@ function mapErrorToMessage(errorCode: string): string | null {
   }
 }
 
-/**
- * Custom hook that wraps the browser Web Speech API for voice-to-text input.
- *
- * Provides feature detection, start/stop controls, real-time interim transcription,
- * a configurable silence timeout, and error handling with user-friendly messages.
- * Cleans up all resources on unmount.
- *
- * @param options - Configuration for the speech recognition session
- * @returns State and controls for the speech recognition session
- */
 export function useSpeechRecognition({
   silenceTimeoutMs = 3000,
   lang = "en-US",
@@ -86,17 +57,14 @@ export function useSpeechRecognition({
   const onFinalTranscriptRef = useRef(onFinalTranscript);
   const lastInterimRef = useRef("");
 
-  // Keep the callback ref current without re-creating recognition
   useEffect(() => {
     onFinalTranscriptRef.current = onFinalTranscript;
   }, [onFinalTranscript]);
 
-  // Feature detection on mount
   useEffect(() => {
     setIsSupported(getSpeechRecognitionAPI() !== null);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (silenceTimerRef.current) {
@@ -165,7 +133,6 @@ export function useSpeechRecognition({
         setError(message);
         setIsListening(false);
       }
-      // Non-critical errors (no-speech, aborted) are silently ignored
     };
 
     recognition.onend = () => {
@@ -186,7 +153,6 @@ export function useSpeechRecognition({
       setIsListening(true);
       resetSilenceTimer();
     } catch {
-      // Handle InvalidStateError if recognition is already started
       setError("Failed to start speech recognition. Please try again.");
     }
   }, [isListening, lang, silenceTimeoutMs]);
@@ -204,7 +170,6 @@ export function useSpeechRecognition({
     recognition.onend = null;
     recognitionRef.current = null;
     recognition.abort();
-    // Immediate state cleanup — don't wait for onend
     setIsListening(false);
     setInterimTranscript("");
     lastInterimRef.current = "";

@@ -68,7 +68,6 @@ const steps = [
 export function LandingHero() {
   return (
     <section className="relative overflow-hidden">
-      {/* Subtle background gradient accent */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-vt/[0.07] rounded-full blur-3xl" />
       </div>
@@ -99,7 +98,6 @@ export function LandingHero() {
                 'transition-colors hover:border-vt-line/80 hover:bg-vt-bg3/40'
               )}
             >
-              {/* Connector line between steps (hidden on mobile) */}
               {i < steps.length - 1 && (
                 <div className="absolute top-1/2 -right-2 hidden sm:block w-4 h-px bg-vt-line/60" />
               )}

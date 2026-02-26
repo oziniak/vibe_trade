@@ -31,13 +31,9 @@ export function computeBenchmark(
   const rawEntryPrice = candles[0].o;
   const entryPriceWithSlippage = rawEntryPrice * (1 + slippageFrac);
 
-  // Entry fee on the full notional (initialCapital)
   const entryFee = initialCapital * feeFrac;
-
-  // Units we can buy after paying the entry fee
   const units = (initialCapital - entryFee) / entryPriceWithSlippage;
 
-  // Build equity curve: mark-to-market at each candle close
   let peak = initialCapital;
   const equityCurve: EquityPoint[] = [];
 
@@ -52,7 +48,6 @@ export function computeBenchmark(
       const exitFee = grossEquity * feeFrac;
       equity = grossEquity - exitFee;
     } else {
-      // Mark-to-market: no fees or slippage on intermediate candles
       equity = units * candles[i].c;
     }
 

@@ -37,7 +37,6 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-[2px] transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
@@ -46,7 +45,6 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
         aria-hidden="true"
       />
 
-      {/* Panel */}
       <div
         className={`fixed inset-y-0 right-0 z-50 w-full max-w-[420px] bg-vt-bg1 border-l border-vt-line/60
           shadow-[-8px_0_30px_-10px_var(--vt-glow)]
@@ -56,7 +54,6 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
         aria-modal="true"
         aria-label={title}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-5 h-14 border-b border-vt/10">
           {title && (
             <h2 className="text-sm font-semibold text-vt-dim tracking-tight">
@@ -72,7 +69,6 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
           </button>
         </div>
 
-        {/* Content */}
         <div className="overflow-y-auto h-[calc(100%-56px)] p-5">
           {children}
         </div>

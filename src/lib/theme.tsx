@@ -11,7 +11,6 @@ export const THEMES = [
   { id: 'copper' as const, label: 'Copper', color: '#e87b55' },
 ] as const;
 
-/** Hex accent colors for use in chart libraries (Recharts, lightweight-charts) */
 export const ACCENT_HEX: Record<ThemeId, string> = {
   terminal: '#22c55e',
   amber: '#f59e0b',
@@ -19,7 +18,6 @@ export const ACCENT_HEX: Record<ThemeId, string> = {
   copper: '#e87b55',
 };
 
-/** Secondary comparison color (contrasts with accent) */
 export const SECONDARY_HEX: Record<ThemeId, string> = {
   terminal: '#f59e0b',
   amber: '#06b6d4',
@@ -63,9 +61,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           setThemeState(stored);
           document.documentElement.setAttribute('data-theme', stored);
         }
-      } catch {
-        // localStorage unavailable
-      }
+      } catch {}
     }
   }, []);
 
@@ -73,9 +69,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(t);
     try {
       localStorage.setItem(STORAGE_KEY, t);
-    } catch {
-      // localStorage unavailable
-    }
+    } catch {}
     document.documentElement.setAttribute('data-theme', t);
   }, []);
 

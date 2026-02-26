@@ -18,7 +18,6 @@ export function PresetGallery({
 }: PresetGalleryProps) {
   return (
     <div className="space-y-6">
-      {/* Preset strategies */}
       <div>
         <h3 className="text-sm font-medium text-slate-400 mb-3 uppercase tracking-wider">
           Preset Strategies
@@ -57,7 +56,6 @@ export function PresetGallery({
         </div>
       </div>
 
-      {/* Demo snapshots */}
       <div>
         <h3 className="text-sm font-medium text-slate-400 mb-3 uppercase tracking-wider">
           Quick Demos

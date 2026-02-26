@@ -1,13 +1,6 @@
 import type { StrategyRuleSet } from '@/types/strategy';
 
-/**
- * 6 preset strategy rule sets for the crypto backtester.
- *
- * Each preset is a complete, valid StrategyRuleSet ready to be fed
- * directly into the backtest engine or displayed in the UI preset picker.
- */
 export const PRESETS: StrategyRuleSet[] = [
-  // ── 1. RSI Mean Reversion ────────────────────────────────────────────
   {
     id: 'preset-rsi-mean-reversion',
     name: 'RSI Mean Reversion',
@@ -49,7 +42,6 @@ export const PRESETS: StrategyRuleSet[] = [
     sizing: { type: 'percent_equity', valuePct: 100 },
   },
 
-  // ── 2. Golden Cross ──────────────────────────────────────────────────
   {
     id: 'preset-golden-cross',
     name: 'Golden Cross',
@@ -97,7 +89,6 @@ export const PRESETS: StrategyRuleSet[] = [
     sizing: { type: 'percent_equity', valuePct: 100 },
   },
 
-  // ── 3. Dip Buyer with TP/SL ──────────────────────────────────────────
   {
     id: 'preset-dip-buyer',
     name: 'Dip Buyer with TP/SL',
@@ -150,7 +141,6 @@ export const PRESETS: StrategyRuleSet[] = [
     sizing: { type: 'percent_equity', valuePct: 100 },
   },
 
-  // ── 4. Bollinger Bounce ──────────────────────────────────────────────
   {
     id: 'preset-bollinger-bounce',
     name: 'Bollinger Bounce',
@@ -198,7 +188,6 @@ export const PRESETS: StrategyRuleSet[] = [
     sizing: { type: 'percent_equity', valuePct: 100 },
   },
 
-  // ── 5. MACD Momentum ─────────────────────────────────────────────────
   {
     id: 'preset-macd-momentum',
     name: 'MACD Momentum',
@@ -266,7 +255,6 @@ export const PRESETS: StrategyRuleSet[] = [
     sizing: { type: 'percent_equity', valuePct: 100 },
   },
 
-  // ── 6. Weekly DCA ────────────────────────────────────────────────────
   {
     id: 'preset-weekly-dca',
     name: 'Weekly DCA',
@@ -285,10 +273,6 @@ export const PRESETS: StrategyRuleSet[] = [
   },
 ];
 
-/**
- * Look up a preset by its id.
- * Returns `undefined` if no preset matches the given id.
- */
 export function getPresetById(id: string): StrategyRuleSet | undefined {
   return PRESETS.find((preset) => preset.id === id);
 }

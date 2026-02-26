@@ -1,12 +1,5 @@
 import type { DemoSnapshot } from '@/types/results';
 
-/**
- * 4 known-good demo snapshots.
- *
- * Each snapshot pairs a preset strategy with a specific asset and date range
- * so the UI can offer instant, reproducible demo runs without waiting for
- * the user to configure anything.
- */
 export const DEMO_SNAPSHOTS: DemoSnapshot[] = [
   {
     id: 'demo-rsi-btc',

@@ -12,13 +12,11 @@ interface RunHistoryProps {
   onRestore: (result: BacktestResult) => void;
 }
 
-/** Truncate a string to a max length, appending ellipsis if needed. */
 function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength).trimEnd() + '\u2026';
 }
 
-/** Format a timestamp as a relative time string (e.g., "2 min ago"). */
 function timeAgo(timestamp: number): string {
   const now = Date.now();
   const diffMs = now - timestamp;
@@ -63,7 +61,6 @@ function RunHistoryEntry({
       onClick={handleClick}
     >
       <CardContent className="px-3 py-0 space-y-1.5">
-        {/* Top row: prompt + asset badge */}
         <div className="flex items-start justify-between gap-2">
           <p
             className="text-xs text-slate-300 leading-tight flex-1 min-w-0"
@@ -79,7 +76,6 @@ function RunHistoryEntry({
           </Badge>
         </div>
 
-        {/* Metrics row */}
         <div className="grid grid-cols-4 gap-1">
           <div>
             <p className="text-[9px] text-slate-500 uppercase tracking-wider leading-none">
@@ -120,7 +116,6 @@ function RunHistoryEntry({
           </div>
         </div>
 
-        {/* Timestamp */}
         <p className="text-[10px] text-slate-500 text-right">
           {timeAgo(snapshot.timestamp)}
         </p>
@@ -135,7 +130,6 @@ export function RunHistory({ history, onRestore }: RunHistoryProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <div className="flex items-center justify-between px-1 mb-3">
         <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
           Run History
@@ -147,7 +141,6 @@ export function RunHistory({ history, onRestore }: RunHistoryProps) {
         )}
       </div>
 
-      {/* List */}
       {sorted.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-sm text-slate-500 text-center">

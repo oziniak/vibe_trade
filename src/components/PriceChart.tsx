@@ -80,7 +80,6 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         },
       });
 
-      // Add candlestick series using v5 API
       const candleSeries = chart.addSeries(CandlestickSeries, {
         upColor: '#22c55e',
         downColor: '#ef4444',
@@ -90,7 +89,6 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         wickDownColor: '#ef4444',
       });
 
-      // Transform candle data
       const chartData = candles.map((c) => ({
         time: c.t as string,
         open: c.o,
@@ -101,7 +99,6 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
 
       candleSeries.setData(chartData);
 
-      // ── Zoom-adaptive trade markers ──────────────────────────────────────
       let markerCleanup: (() => void) | undefined;
 
       if (trades.length > 0) {
@@ -220,7 +217,6 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         };
       }
 
-      // ── Indicator overlays ──────────────────────────────────────────
       if (indicatorData && allCandles && allCandles.length > 0) {
         // Build a date-to-index map for the full (unfiltered) candle set
         const allCandleDateToIdx = new Map<string, number>();
@@ -288,7 +284,6 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
 
           if (lineData.length === 0) continue;
 
-          // Add line series overlay
           const lineSeries = chart.addSeries(LineSeries, {
             color,
             lineWidth: lineWidth as 1 | 2 | 3 | 4,
@@ -303,10 +298,8 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         }
       }
 
-      // Fit content to view
       chart.timeScale().fitContent();
 
-      // Handle resize
       const container = containerRef.current!;
       const resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {

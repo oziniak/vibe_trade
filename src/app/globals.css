@@ -275,3 +275,28 @@ label[for] {
   border-right-color: var(--vt-dim);
   animation: spinner-rotate 0.75s linear infinite;
 }
+
+/* ── Strategy parsing loader ─────────────────────────────────── */
+@keyframes vt-bar-pulse {
+  0%, 100% { transform: scaleY(0.3); opacity: 0.4; }
+  50%      { transform: scaleY(1);   opacity: 1; }
+}
+
+@keyframes vt-scan {
+  0%   { left: -10%; opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { left: 110%; opacity: 0; }
+}
+
+@keyframes vt-glow-breathe {
+  0%, 100% { opacity: 0.08; transform: scale(1); }
+  50%      { opacity: 0.2;  transform: scale(1.1); }
+}
+
+@keyframes vt-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+/* Classes kept for reference; animations applied via inline styles */

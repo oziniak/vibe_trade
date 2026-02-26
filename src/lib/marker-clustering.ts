@@ -1,28 +1,21 @@
 import { getISOWeek, getISOWeekYear } from 'date-fns';
 
-// ── Types ──────────────────────────────────────────────────────────────────
-
 export type Granularity = 'none' | 'weekly' | 'monthly' | 'quarterly';
 
 export interface MergedMarker {
-  time: string;       // date string e.g. "2022-04-15"
+  time: string;
   avgPrice: number;
   count: number;
   side: 'buy' | 'sell';
 }
 
 export interface ClusteredMarker {
-  time: string;       // representative date (median of bucket)
-  avgPrice: number;   // volume-weighted average price
-  totalCount: number; // total trade count across bucket
+  time: string;
+  avgPrice: number;
+  totalCount: number;
   side: 'buy' | 'sell';
 }
 
-// ── Pure functions ─────────────────────────────────────────────────────────
-
-/**
- * Map visible bar count to a clustering granularity.
- */
 export function determineBucketGranularity(visibleBarCount: number): Granularity {
   if (visibleBarCount <= 90) return 'none';
   if (visibleBarCount <= 365) return 'weekly';
@@ -30,9 +23,6 @@ export function determineBucketGranularity(visibleBarCount: number): Granularity
   return 'quarterly';
 }
 
-/**
- * Return a grouping key for a date string at the given granularity.
- */
 export function bucketKey(dateStr: string, granularity: Granularity): string {
   if (granularity === 'none') return dateStr;
 
@@ -74,7 +64,6 @@ export function clusterMarkers(
     }));
   }
 
-  // Group by bucket key
   const buckets = new Map<string, MergedMarker[]>();
   for (const m of markers) {
     const key = bucketKey(m.time, granularity);
@@ -109,9 +98,6 @@ export function clusterMarkers(
   return result;
 }
 
-/**
- * Format a cluster into a human-readable marker label.
- */
 export function formatMarkerLabel(cluster: ClusteredMarker): string {
   const verb = cluster.side === 'buy' ? 'Buy' : 'Sell';
   const price = `$${cluster.avgPrice.toFixed(0)}`;

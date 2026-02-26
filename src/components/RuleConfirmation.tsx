@@ -83,7 +83,6 @@ export function RuleConfirmation({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Low confidence warning banner */}
       {metadata?.parserConfidence === 'low' && (
         <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 flex items-start gap-2">
           <svg
@@ -106,7 +105,6 @@ export function RuleConfirmation({
         </div>
       )}
 
-      {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-lg font-semibold text-slate-100">
@@ -129,7 +127,6 @@ export function RuleConfirmation({
         )}
       </div>
 
-      {/* Warnings */}
       {warnings.length > 0 && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
           <div className="flex items-center gap-2 mb-1.5">
@@ -160,7 +157,6 @@ export function RuleConfirmation({
         </div>
       )}
 
-      {/* Tabs: Rules / JSON */}
       <Tabs defaultValue="rules" className="w-full">
         <TabsList className="w-full bg-vt-bg3/50 border border-vt-line/50">
           <TabsTrigger value="rules" className="flex-1">
@@ -172,7 +168,6 @@ export function RuleConfirmation({
         </TabsList>
 
         <TabsContent value="rules" className="space-y-4 mt-4">
-          {/* Entry conditions */}
           <Card className="bg-vt-bg3/30 border-vt-line/50 py-4 gap-3">
             <CardHeader className="py-0">
               <CardTitle className="text-sm font-medium text-emerald-400 flex items-center gap-2">
@@ -204,7 +199,6 @@ export function RuleConfirmation({
             </CardContent>
           </Card>
 
-          {/* Exit conditions */}
           <Card className="bg-vt-bg3/30 border-vt-line/50 py-4 gap-3">
             <CardHeader className="py-0">
               <CardTitle className="text-sm font-medium text-red-400 flex items-center gap-2">
@@ -236,7 +230,6 @@ export function RuleConfirmation({
             </CardContent>
           </Card>
 
-          {/* Position sizing */}
           <Card className="bg-vt-bg3/30 border-vt-line/50 py-4 gap-3">
             <CardHeader className="py-0">
               <CardTitle className="text-sm font-medium text-slate-300">
@@ -272,7 +265,6 @@ export function RuleConfirmation({
         </TabsContent>
       </Tabs>
 
-      {/* Action buttons */}
       <div className="flex gap-3">
         <Button
           variant="outline"

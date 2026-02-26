@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 
-/**
- * Countdown hook that ticks once per second.
- * Returns [secondsRemaining, start(seconds), clear()].
- */
 export function useCountdown(): [number, (seconds: number) => void, () => void] {
   const [expiresAt, setExpiresAt] = useState<number | null>(null);
   const [remaining, setRemaining] = useState(0);
