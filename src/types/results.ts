@@ -87,6 +87,7 @@ export interface AuditInfo {
   riskFreeRate: number;
   benchmarkModel: string;
   positionModel: string;
+  dcaBudgetExhaustedDate?: string;
 }
 
 /** Complete backtest result */

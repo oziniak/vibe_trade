@@ -639,6 +639,11 @@ function runDCABacktest(
   });
   audit.positionModel = 'DCA additive';
 
+  // Flag when DCA budget was fully exhausted
+  if (remainingCash <= amountUsd * feeFrac && dcaEntries.length > 0) {
+    audit.dcaBudgetExhaustedDate = dcaEntries[dcaEntries.length - 1].date;
+  }
+
   return {
     config,
     trades,

@@ -10,6 +10,7 @@ import { ComparisonView } from '@/components/ComparisonView';
 import { EquityCurve } from '@/components/EquityCurve';
 import { ChartWithData } from '@/components/ChartWithData';
 import { WarmupWarning } from '@/components/WarmupWarning';
+import { DCABudgetWarning } from '@/components/DCABudgetWarning';
 import { TradeLog } from '@/components/TradeLog';
 import { AuditPanel } from '@/components/AuditPanel';
 import { CompareSection } from '@/components/CompareSection';
@@ -93,6 +94,7 @@ export function ResultsPhase({
         <h3 className="text-sm font-medium text-vt-dim/70 mb-2 uppercase tracking-wider">
           Price Chart
         </h3>
+        <DCABudgetWarning audit={result.audit} initialCapital={result.config.initialCapital} />
         <ChartWithData
           asset={result.config.asset}
           startDate={result.config.startDate}
