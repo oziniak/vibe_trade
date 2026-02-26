@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { parseStrategy } from '@/lib/parser';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { logApiRequest, maskIp } from '@/lib/api-logger';
 
 export const maxDuration = 10;
 
@@ -20,8 +21,11 @@ function getClientIp(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  const ip = getClientIp(request);
+  const maskedIp = maskIp(ip);
+
   try {
-    const ip = getClientIp(request);
     const rl = await checkRateLimit(ip);
 
     if (!rl.allowed) {
@@ -29,6 +33,16 @@ export async function POST(request: NextRequest) {
         rl.limitType === 'daily'
           ? 'Daily request limit reached (10/day). Please come back tomorrow.'
           : `Too many requests. Please wait ${rl.retryAfter} seconds.`;
+
+      logApiRequest({
+        timestamp: new Date().toISOString(),
+        ip: maskedIp,
+        prompt: '',
+        asset: '',
+        success: false,
+        error: `rate-limit:${rl.limitType}`,
+        durationMs: Date.now() - startTime,
+      });
 
       return NextResponse.json(
         {
@@ -51,6 +65,16 @@ export async function POST(request: NextRequest) {
     const parsed = RequestSchema.safeParse(body);
 
     if (!parsed.success) {
+      logApiRequest({
+        timestamp: new Date().toISOString(),
+        ip: maskedIp,
+        prompt: JSON.stringify(body).slice(0, 500),
+        asset: '',
+        success: false,
+        error: 'validation:invalid_request',
+        durationMs: Date.now() - startTime,
+      });
+
       return NextResponse.json(
         { success: false, error: 'Invalid request', suggestions: [] },
         { status: 400 }
@@ -58,9 +82,30 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await parseStrategy(parsed.data.prompt);
+
+    logApiRequest({
+      timestamp: new Date().toISOString(),
+      ip: maskedIp,
+      prompt: parsed.data.prompt,
+      asset: parsed.data.asset,
+      success: result.success,
+      error: result.success ? undefined : result.error,
+      durationMs: Date.now() - startTime,
+    });
+
     return NextResponse.json(result);
 
-  } catch {
+  } catch (err) {
+    logApiRequest({
+      timestamp: new Date().toISOString(),
+      ip: maskedIp,
+      prompt: '',
+      asset: '',
+      success: false,
+      error: `unhandled:${err instanceof Error ? err.message : 'unknown'}`,
+      durationMs: Date.now() - startTime,
+    });
+
     return NextResponse.json(
       {
         success: false,
