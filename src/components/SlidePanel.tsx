@@ -8,9 +8,10 @@ interface SlidePanelProps {
   onClose: () => void;
   children: React.ReactNode;
   title?: string;
+  wide?: boolean;
 }
 
-export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps) {
+export function SlidePanel({ isOpen, onClose, children, title, wide }: SlidePanelProps) {
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -26,12 +27,16 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
 
   useEffect(() => {
     if (isOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
     } else {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
     };
   }, [isOpen]);
 
@@ -46,7 +51,7 @@ export function SlidePanel({ isOpen, onClose, children, title }: SlidePanelProps
       />
 
       <div
-        className={`fixed inset-y-0 right-0 z-50 w-full max-w-[420px] bg-vt-bg1 border-l border-vt-line/60
+        className={`fixed inset-y-0 right-0 z-50 w-full ${wide ? 'sm:max-w-[600px]' : 'max-w-[420px]'} bg-vt-bg1 border-l border-vt-line/60
           shadow-[-8px_0_30px_-10px_var(--vt-glow)]
           transform transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]
           ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}

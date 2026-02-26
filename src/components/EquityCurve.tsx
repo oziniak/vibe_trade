@@ -11,7 +11,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ReferenceLine,
 } from 'recharts';
 import type { EquityPoint } from '@/types/results';
 import { formatCurrency, formatPercent } from '@/lib/utils';
@@ -205,6 +204,14 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
   // Add a small buffer below the minimum drawdown for visual padding.
   const drawdownDomainMin = Math.floor(minDrawdown * 1.1);
 
+  // Build explicit ticks that always include 0 so CartesianGrid draws a
+  // dashed reference line at 0% (grid lines render behind data).
+  const ddTickStep = Math.max(5, Math.ceil(Math.abs(drawdownDomainMin) / 4 / 5) * 5);
+  const drawdownTicks: number[] = [0];
+  for (let v = -ddTickStep; v >= drawdownDomainMin; v -= ddTickStep) {
+    drawdownTicks.push(v);
+  }
+
   const equityHeight = isMobile ? 240 : 350;
   const drawdownHeight = isMobile ? 120 : 200;
   const yAxisWidth = isMobile ? 60 : 90;
@@ -335,14 +342,13 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
               tickFormatter={(value: number) => `${value.toFixed(0)}%`}
               width={yAxisWidth}
               domain={[drawdownDomainMin, 5]}
+              ticks={drawdownTicks}
             />
 
             <Tooltip
               content={<DrawdownTooltip />}
               cursor={{ stroke: '#475569', strokeDasharray: '4 4' }}
             />
-
-            <ReferenceLine y={0} stroke="#334155" strokeWidth={1} />
 
             <Area
               type="monotone"

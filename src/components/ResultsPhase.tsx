@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
 import type { AssetSymbol, StrategyRuleSet } from '@/types/strategy';
 import type { BacktestResult, RunSnapshot } from '@/types/results';
 import { ResultsHeader } from '@/components/ResultsHeader';
@@ -11,6 +14,8 @@ import { TradeLog } from '@/components/TradeLog';
 import { AuditPanel } from '@/components/AuditPanel';
 import { CompareSection } from '@/components/CompareSection';
 import { RunHistory } from '@/components/RunHistory';
+import { SlidePanel } from '@/components/SlidePanel';
+import { RuleConfirmation } from '@/components/RuleConfirmation';
 
 export function ResultsPhase({
   result,
@@ -19,8 +24,8 @@ export function ResultsPhase({
   activeAsset,
   isComparing,
   runHistory,
+  rules,
   onAssetSwap,
-  onBack,
   onClearComparison,
   onCompareWithPrompt,
   onCompareWithPreset,
@@ -32,13 +37,23 @@ export function ResultsPhase({
   activeAsset: AssetSymbol;
   isComparing: boolean;
   runHistory: RunSnapshot[];
+  rules: StrategyRuleSet | null;
   onAssetSwap: (asset: AssetSymbol) => void;
-  onBack: () => void;
   onClearComparison: () => void;
   onCompareWithPrompt: (prompt: string) => void;
   onCompareWithPreset: (ruleSet: StrategyRuleSet) => void;
   onRestore: (result: BacktestResult) => void;
 }) {
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const autoOpenedRef = useRef(false);
+
+  // Auto-open drawer on low confidence parse
+  useEffect(() => {
+    if (rules?.metadata?.parserConfidence === 'low' && !autoOpenedRef.current) {
+      autoOpenedRef.current = true;
+      setRulesOpen(true);
+    }
+  }, [rules]);
   return (
     <div className="space-y-6">
       <ResultsHeader
@@ -46,7 +61,7 @@ export function ResultsPhase({
         strategyName={strategyName}
         activeAsset={activeAsset}
         onAssetSwap={onAssetSwap}
-        onBack={onBack}
+        onViewRules={rules ? () => setRulesOpen(true) : undefined}
       />
 
       <ExportToolbar result={result} />
@@ -117,6 +132,17 @@ export function ResultsPhase({
 
       {runHistory.length > 0 && (
         <RunHistory history={runHistory} onRestore={onRestore} />
+      )}
+
+      {rules && (
+        <SlidePanel
+          isOpen={rulesOpen}
+          onClose={() => setRulesOpen(false)}
+          title="Strategy Rules"
+          wide
+        >
+          <RuleConfirmation rules={rules} readOnly />
+        </SlidePanel>
       )}
     </div>
   );

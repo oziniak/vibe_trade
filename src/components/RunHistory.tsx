@@ -130,15 +130,20 @@ export function RunHistory({ history, onRestore }: RunHistoryProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-1 mb-3">
-        <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
-          Run History
-        </h2>
-        {sorted.length > 0 && (
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-            {sorted.length}
-          </Badge>
-        )}
+      <div className="px-1 mb-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
+            Run History
+          </h2>
+          {sorted.length > 0 && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {sorted.length}
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-slate-600 mt-1">
+          Click to restore a previous result
+        </p>
       </div>
 
       {sorted.length === 0 ? (

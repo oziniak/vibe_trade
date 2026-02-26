@@ -10,9 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 
 interface RuleConfirmationProps {
   rules: StrategyRuleSet;
-  onConfirm: () => void;
-  onBack: () => void;
+  onConfirm?: () => void;
+  onBack?: () => void;
   isRunning?: boolean;
+  readOnly?: boolean;
 }
 
 function ConfidenceBadge({
@@ -73,6 +74,7 @@ export function RuleConfirmation({
   onConfirm,
   onBack,
   isRunning = false,
+  readOnly = false,
 }: RuleConfirmationProps) {
   const [editedJson, setEditedJson] = useState(
     JSON.stringify(rules, null, 2)
@@ -265,48 +267,50 @@ export function RuleConfirmation({
         </TabsContent>
       </Tabs>
 
-      <div className="flex gap-3">
-        <Button
-          variant="outline"
-          onClick={onBack}
-          disabled={isRunning}
-          className="flex-1 border-vt-line text-slate-300 hover:bg-vt-bg3 hover:text-slate-100"
-        >
-          Back
-        </Button>
-        <Button
-          onClick={onConfirm}
-          disabled={isRunning}
-          className="flex-1 bg-vt hover:bg-vt-hover text-white"
-        >
-          {isRunning ? (
-            <span className="flex items-center gap-2">
-              <svg
-                className="animate-spin h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              Running backtest...
-            </span>
-          ) : (
-            'Run Backtest'
-          )}
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={onBack}
+            disabled={isRunning}
+            className="flex-1 border-vt-line text-slate-300 hover:bg-vt-bg3 hover:text-slate-100"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={onConfirm}
+            disabled={isRunning}
+            className="flex-1 bg-vt hover:bg-vt-hover text-white"
+          >
+            {isRunning ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Running backtest...
+              </span>
+            ) : (
+              'Run Backtest'
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

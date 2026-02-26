@@ -70,6 +70,9 @@ export function PriceChart({ candles, trades, indicatorData, allCandles }: Price
         timeScale: {
           borderColor: '#334155',
           timeVisible: false,
+          fixLeftEdge: true,
+          fixRightEdge: true,
+          minBarSpacing: 1,
         },
         rightPriceScale: {
           borderColor: '#334155',

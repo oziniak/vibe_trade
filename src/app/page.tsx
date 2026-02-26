@@ -10,7 +10,7 @@ import { useShareURL } from '@/hooks/useShareURL';
 import { useBacktestActions } from '@/hooks/useBacktestActions';
 import { AppHeader } from '@/components/AppHeader';
 import { InputPhase } from '@/components/InputPhase';
-import { ConfirmingPhase } from '@/components/ConfirmingPhase';
+
 import { ResultsPhase } from '@/components/ResultsPhase';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ErrorToast } from '@/components/ErrorToast';
@@ -33,7 +33,6 @@ export default function Home() {
     addToHistory,
     isComparing,
     handleParse,
-    handleConfirm,
     handlePreset,
     handleSnapshot,
     handleBack,
@@ -111,14 +110,6 @@ export default function Home() {
 
         {state.phase === 'parsing' && <LoadingSpinner message="AI is parsing your strategy..." />}
 
-        {state.phase === 'confirming' && state.currentRules && (
-          <ConfirmingPhase
-            rules={state.currentRules}
-            onConfirm={handleConfirm}
-            onBack={handleBack}
-          />
-        )}
-
         {state.phase === 'running' && <LoadingSpinner message="Running backtest..." />}
 
         {showResults && (
@@ -129,8 +120,8 @@ export default function Home() {
             activeAsset={state.config.asset}
             isComparing={isComparing}
             runHistory={state.runHistory}
+            rules={state.currentRules}
             onAssetSwap={handleAssetSwap}
-            onBack={handleBack}
             onClearComparison={() => dispatch({ type: 'CLEAR_COMPARISON' })}
             onCompareWithPrompt={handleCompareWithPrompt}
             onCompareWithPreset={handleCompare}

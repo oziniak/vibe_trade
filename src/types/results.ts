@@ -101,7 +101,7 @@ export interface BacktestResult {
 }
 
 /** Application phase */
-export type AppPhase = 'input' | 'parsing' | 'confirming' | 'running' | 'results' | 'comparing';
+export type AppPhase = 'input' | 'parsing' | 'running' | 'results' | 'comparing';
 
 /** Snapshot of a run for history */
 export interface RunSnapshot {

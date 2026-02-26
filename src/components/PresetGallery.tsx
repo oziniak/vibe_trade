@@ -19,9 +19,12 @@ export function PresetGallery({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-sm font-medium text-slate-400 mb-3 uppercase tracking-wider">
+        <h3 className="text-sm font-medium text-slate-400 mb-1 uppercase tracking-wider">
           Preset Strategies
         </h3>
+        <p className="text-xs text-slate-600 mb-3">
+          Runs with your current asset &amp; date range settings
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {PRESETS.map((preset) => (
             <Card
@@ -57,9 +60,12 @@ export function PresetGallery({
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-slate-400 mb-3 uppercase tracking-wider">
+        <h3 className="text-sm font-medium text-slate-400 mb-1 uppercase tracking-wider">
           Quick Demos
         </h3>
+        <p className="text-xs text-slate-600 mb-3">
+          Pre-configured strategy + asset + date range, one click
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {DEMO_SNAPSHOTS.map((snapshot) => (
             <Card

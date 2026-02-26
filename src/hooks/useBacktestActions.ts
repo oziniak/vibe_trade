@@ -90,8 +90,21 @@ export function useBacktestActions(
           return;
         }
 
-        dispatch({ type: 'SET_RULES', rules: (data as ParseResponse & { success: true }).ruleSet });
-        dispatch({ type: 'SET_PHASE', phase: 'confirming' });
+        const rules = (data as ParseResponse & { success: true }).ruleSet;
+        dispatch({ type: 'SET_RULES', rules });
+        dispatch({ type: 'SET_PHASE', phase: 'running' });
+
+        try {
+          const result = await executeBacktest(rules, state.config);
+          dispatch({ type: 'SET_RESULTS', results: result });
+          dispatch({ type: 'SET_PHASE', phase: 'results' });
+          addToHistory(result, prompt);
+        } catch (err) {
+          dispatch({
+            type: 'SET_ERROR',
+            error: err instanceof Error ? `Backtest failed: ${err.message}` : 'Backtest failed.',
+          });
+        }
       } catch {
         dispatch({
           type: 'SET_ERROR',
@@ -99,33 +112,28 @@ export function useBacktestActions(
         });
       }
     },
-    [dispatch, rateLimitControls],
+    [dispatch, rateLimitControls, state.config, executeBacktest, addToHistory],
   );
 
-  const handleConfirm = useCallback(async () => {
-    if (!state.currentRules) return;
-    dispatch({ type: 'SET_PHASE', phase: 'running' });
-
-    try {
-      const result = await executeBacktest(state.currentRules, state.config);
-      dispatch({ type: 'SET_RESULTS', results: result });
-      dispatch({ type: 'SET_PHASE', phase: 'results' });
-      addToHistory(result, state.currentPrompt || state.currentRules.name);
-    } catch (err) {
-      dispatch({
-        type: 'SET_ERROR',
-        error: err instanceof Error ? `Backtest failed: ${err.message}` : 'Backtest failed.',
-      });
-    }
-  }, [state.currentRules, state.config, state.currentPrompt, dispatch, executeBacktest, addToHistory]);
-
   const handlePreset = useCallback(
-    (ruleSet: StrategyRuleSet) => {
+    async (ruleSet: StrategyRuleSet) => {
       dispatch({ type: 'SET_RULES', rules: ruleSet });
       dispatch({ type: 'SET_PROMPT', prompt: ruleSet.description || ruleSet.name });
-      dispatch({ type: 'SET_PHASE', phase: 'confirming' });
+      dispatch({ type: 'SET_PHASE', phase: 'running' });
+
+      try {
+        const result = await executeBacktest(ruleSet, state.config);
+        dispatch({ type: 'SET_RESULTS', results: result });
+        dispatch({ type: 'SET_PHASE', phase: 'results' });
+        addToHistory(result, ruleSet.description || ruleSet.name);
+      } catch (err) {
+        dispatch({
+          type: 'SET_ERROR',
+          error: err instanceof Error ? `Backtest failed: ${err.message}` : 'Backtest failed.',
+        });
+      }
     },
-    [dispatch],
+    [dispatch, state.config, executeBacktest, addToHistory],
   );
 
   const handleSnapshot = useCallback(
@@ -260,7 +268,6 @@ export function useBacktestActions(
     addToHistory,
     isComparing,
     handleParse,
-    handleConfirm,
     handlePreset,
     handleSnapshot,
     handleBack,
