@@ -105,6 +105,7 @@ export function ResultsPhase({
           endDate={result.config.endDate}
           trades={result.trades}
           indicatorData={result.indicatorData}
+          lockZoom
         />
       </div>
 

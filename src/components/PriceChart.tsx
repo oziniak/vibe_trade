@@ -12,6 +12,7 @@ interface PriceChartProps {
   candles: Candle[];
   trades: Trade[];
   indicatorData?: Record<string, (number | null)[]>;
+  lockZoom?: boolean;
 }
 
 // Color palettes for indicator overlays (dark mode optimized)
@@ -279,9 +280,13 @@ function applyData(
   }
 }
 
-function PriceChartInner({ candles, trades, indicatorData }: PriceChartProps) {
+function PriceChartInner({ candles, trades, indicatorData, lockZoom }: PriceChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Track lockZoom as a ref so the async chart creation reads the latest value
+  const lockZoomRef = useRef(lockZoom);
+  lockZoomRef.current = lockZoom;
 
   // Persistent refs — survive across data changes
   const chartRef = useRef<ChartInstance>(null);
@@ -334,6 +339,7 @@ function PriceChartInner({ candles, trades, indicatorData }: PriceChartProps) {
           vertLine: { color: '#475569', width: 1, style: 3 },
           horzLine: { color: '#475569', width: 1, style: 3 },
         },
+        handleScale: !lockZoomRef.current,
       });
 
       const candleSeries = chart.addSeries(CandlestickSeries, {
@@ -387,7 +393,15 @@ function PriceChartInner({ candles, trades, indicatorData }: PriceChartProps) {
     };
   }, []); // mount-only
 
-  // Effect B: data update — reuse existing chart instance
+  // Effect B: lock/unlock zoom
+  useEffect(() => {
+    if (!chartRef.current) return;
+    chartRef.current.applyOptions({
+      handleScale: !lockZoom,
+    });
+  }, [lockZoom]);
+
+  // Effect C: data update — reuse existing chart instance
   useEffect(() => {
     if (candles.length === 0) return;
 

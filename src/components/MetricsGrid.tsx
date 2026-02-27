@@ -1,7 +1,7 @@
 'use client';
 
 import NumberFlow, { type Format } from '@number-flow/react';
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import type { PerformanceMetrics } from '@/types/results';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -81,6 +81,9 @@ function getValueColor(value: number, colorMode: MetricDefinition['colorMode']):
 }
 
 function MetricsGridInner({ metrics, benchmarkReturn }: MetricsGridProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   return (
     <div className="space-y-4">
       {/* Benchmark comparison bar */}
@@ -89,7 +92,7 @@ function MetricsGridInner({ metrics, benchmarkReturn }: MetricsGridProps) {
           <p className="text-xs text-slate-500 uppercase tracking-wider">Strategy Return</p>
           <p className={`text-lg font-semibold tabular-nums ${metrics.totalReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
             <NumberFlow
-              value={metrics.totalReturn}
+              value={mounted ? metrics.totalReturn : 0}
               format={PCT} suffix="%"
               transformTiming={BENCHMARK_TIMING[0]}
               spinTiming={BENCHMARK_TIMING[0]}
@@ -101,7 +104,7 @@ function MetricsGridInner({ metrics, benchmarkReturn }: MetricsGridProps) {
           <p className="text-xs text-slate-500 uppercase tracking-wider">Buy &amp; Hold</p>
           <p className={`text-lg font-semibold tabular-nums ${benchmarkReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
             <NumberFlow
-              value={benchmarkReturn}
+              value={mounted ? benchmarkReturn : 0}
               format={PCT} suffix="%"
               transformTiming={BENCHMARK_TIMING[1]}
               spinTiming={BENCHMARK_TIMING[1]}
@@ -126,7 +129,7 @@ function MetricsGridInner({ metrics, benchmarkReturn }: MetricsGridProps) {
                 <p className={`text-sm font-semibold mt-0.5 tabular-nums ${colorClass}`}>
                   {isFinite(value) ? (
                     <NumberFlow
-                      value={value}
+                      value={mounted ? value : 0}
                       format={def.format}
                       suffix={def.suffix}
                       transformTiming={timing}

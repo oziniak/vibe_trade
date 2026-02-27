@@ -12,12 +12,14 @@ export function ChartWithData({
   endDate,
   trades,
   indicatorData,
+  lockZoom,
 }: {
   asset: AssetSymbol;
   startDate: string;
   endDate: string;
   trades: Trade[];
   indicatorData?: Record<string, (number | null)[]>;
+  lockZoom?: boolean;
 }) {
   const [candles, setCandles] = useState<Candle[]>(() => {
     // Synchronous cache check — avoids loading flash for cached assets
@@ -89,6 +91,7 @@ export function ChartWithData({
       candles={candles}
       trades={trades}
       indicatorData={indicatorData}
+      lockZoom={false}
     />
   );
 }
