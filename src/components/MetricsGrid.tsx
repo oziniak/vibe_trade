@@ -1,7 +1,7 @@
 'use client';
 
 import NumberFlow, { type Format } from '@number-flow/react';
-import { useEffect, useState } from 'react';
+import { memo } from 'react';
 import type { PerformanceMetrics } from '@/types/results';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -38,16 +38,13 @@ const DEC1: Format = {
   maximumFractionDigits: 1,
 };
 
-// Pre-generated once per page load: staggered base delay + small random jitter
-// so each number animates slightly differently on mount and on value changes.
-const jitter = () => Math.random() * 40 - 20; // ±20ms
 const BENCHMARK_TIMING = [
-  { delay:  0 + jitter(), duration: 520 + jitter() },
-  { delay: 30 + jitter(), duration: 520 + jitter() },
+  { delay: 0, duration: 280 },
+  { delay: 0, duration: 280 },
 ];
 const METRIC_TIMING = Array.from({ length: 15 }, (_, i) => ({
-  delay:    60 + i * 28 + jitter(), // 60–452ms stagger base
-  duration: 500 + jitter(),         // ~480–520ms
+  delay: i * 8,
+  duration: 250,
 }));
 
 const METRIC_DEFS: MetricDefinition[] = [
@@ -83,17 +80,7 @@ function getValueColor(value: number, colorMode: MetricDefinition['colorMode']):
   return 'text-slate-200';
 }
 
-export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
-  const [animatedMetrics, setAnimatedMetrics] = useState<PerformanceMetrics | null>(null);
-  const [animatedBenchmark, setAnimatedBenchmark] = useState(0);
-
-  useEffect(() => {
-    setAnimatedMetrics(metrics);
-    setAnimatedBenchmark(benchmarkReturn);
-  }, [metrics, benchmarkReturn]);
-
-  const displayed = animatedMetrics ?? metrics;
-
+function MetricsGridInner({ metrics, benchmarkReturn }: MetricsGridProps) {
   return (
     <div className="space-y-4">
       {/* Benchmark comparison bar */}
@@ -102,7 +89,7 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
           <p className="text-xs text-slate-500 uppercase tracking-wider">Strategy Return</p>
           <p className={`text-lg font-semibold tabular-nums ${metrics.totalReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
             <NumberFlow
-              value={animatedMetrics?.totalReturn ?? 0}
+              value={metrics.totalReturn}
               format={PCT} suffix="%"
               transformTiming={BENCHMARK_TIMING[0]}
               spinTiming={BENCHMARK_TIMING[0]}
@@ -114,7 +101,7 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
           <p className="text-xs text-slate-500 uppercase tracking-wider">Buy &amp; Hold</p>
           <p className={`text-lg font-semibold tabular-nums ${benchmarkReturn >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
             <NumberFlow
-              value={animatedBenchmark}
+              value={benchmarkReturn}
               format={PCT} suffix="%"
               transformTiming={BENCHMARK_TIMING[1]}
               spinTiming={BENCHMARK_TIMING[1]}
@@ -127,7 +114,6 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {METRIC_DEFS.map((def, i) => {
           const value = metrics[def.key];
-          const animatedValue = displayed[def.key];
           const colorClass = getValueColor(value, def.colorMode);
           const timing = METRIC_TIMING[i];
 
@@ -140,7 +126,7 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
                 <p className={`text-sm font-semibold mt-0.5 tabular-nums ${colorClass}`}>
                   {isFinite(value) ? (
                     <NumberFlow
-                      value={animatedMetrics ? animatedValue : 0}
+                      value={value}
                       format={def.format}
                       suffix={def.suffix}
                       transformTiming={timing}
@@ -156,3 +142,5 @@ export function MetricsGrid({ metrics, benchmarkReturn }: MetricsGridProps) {
     </div>
   );
 }
+
+export const MetricsGrid = memo(MetricsGridInner);

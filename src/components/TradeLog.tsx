@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, memo } from 'react';
 import type { Trade } from '@/types/results';
 import {
   Table,
@@ -19,7 +19,7 @@ interface TradeLogProps {
 type SortKey = 'id' | 'entryDate' | 'exitDate' | 'pnlAbs' | 'pnlPct' | 'holdingDays';
 type SortDir = 'asc' | 'desc';
 
-export function TradeLog({ trades }: TradeLogProps) {
+function TradeLogInner({ trades }: TradeLogProps) {
   const [sortKey, setSortKey] = useState<SortKey>('id');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
@@ -181,3 +181,5 @@ export function TradeLog({ trades }: TradeLogProps) {
     </div>
   );
 }
+
+export const TradeLog = memo(TradeLogInner);

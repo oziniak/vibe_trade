@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { AssetSymbol, StrategyRuleSet } from '@/types/strategy';
 import type { BacktestResult, RunSnapshot } from '@/types/results';
+import { prefetchAllCandles } from '@/data/loader';
 import { ResultsHeader } from '@/components/ResultsHeader';
 import { ExportToolbar } from '@/components/ExportToolbar';
 import { MetricsGrid } from '@/components/MetricsGrid';
@@ -47,6 +48,9 @@ export function ResultsPhase({
 }) {
   const [rulesOpen, setRulesOpen] = useState(false);
   const autoOpenedRef = useRef(false);
+
+  // Prefetch all 8 assets in background so future swaps hit cache
+  useEffect(() => { prefetchAllCandles(); }, []);
 
   // Auto-open drawer on low confidence parse
   useEffect(() => {
@@ -146,6 +150,18 @@ export function ResultsPhase({
           <RuleConfirmation rules={rules} readOnly />
         </SlidePanel>
       )}
+
+      <footer className="py-4 text-center text-[11px] text-slate-600">
+        Charts by{' '}
+        <a
+          href="https://www.tradingview.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-slate-400 transition-colors"
+        >
+          TradingView
+        </a>
+      </footer>
     </div>
   );
 }

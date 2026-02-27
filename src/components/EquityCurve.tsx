@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -182,7 +182,7 @@ function EquityLegend({ accentColor }: { accentColor?: string }) {
   );
 }
 
-export function EquityCurve({ equityCurve }: EquityCurveProps) {
+function EquityCurveInner({ equityCurve }: EquityCurveProps) {
   const isMobile = useIsMobile();
   const { accentHex } = useTheme();
 
@@ -388,3 +388,5 @@ export function EquityCurve({ equityCurve }: EquityCurveProps) {
     </div>
   );
 }
+
+export const EquityCurve = memo(EquityCurveInner);

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { AssetSymbol } from '@/types/strategy';
 import type { Candle, Trade } from '@/types/results';
-import { loadCandles } from '@/data/loader';
+import { loadCandles, getCachedCandles } from '@/data/loader';
 import { PriceChart } from '@/components/PriceChart';
 
 export function ChartWithData({
@@ -19,20 +19,36 @@ export function ChartWithData({
   trades: Trade[];
   indicatorData?: Record<string, (number | null)[]>;
 }) {
-  const [candles, setCandles] = useState<Candle[]>([]);
-  const [allCandlesState, setAllCandlesState] = useState<Candle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [candles, setCandles] = useState<Candle[]>(() => {
+    // Synchronous cache check — avoids loading flash for cached assets
+    const cached = getCachedCandles(asset);
+    if (cached) {
+      return cached.filter((c) => c.t >= startDate && c.t <= endDate);
+    }
+    return [];
+  });
+  const [loading, setLoading] = useState(() => !getCachedCandles(asset));
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     setError(null);
+
+    // Sync path: if data is already cached, set it immediately — no spinner
+    const cached = getCachedCandles(asset);
+    if (cached) {
+      const filtered = cached.filter((c) => c.t >= startDate && c.t <= endDate);
+      setCandles(filtered);
+      setLoading(false);
+      return;
+    }
+
+    // Async path: data not yet cached
+    setLoading(true);
 
     loadCandles(asset)
       .then((allCandles) => {
         if (cancelled) return;
-        setAllCandlesState(allCandles);
         const filtered = allCandles.filter((c) => c.t >= startDate && c.t <= endDate);
         setCandles(filtered);
         setLoading(false);
@@ -73,7 +89,6 @@ export function ChartWithData({
       candles={candles}
       trades={trades}
       indicatorData={indicatorData}
-      allCandles={allCandlesState}
     />
   );
 }
